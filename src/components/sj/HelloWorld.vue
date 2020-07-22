@@ -1,330 +1,360 @@
 <template>
-  <div class="box"
-       style="text-align:center;">
-    <div style="margin:20px auto;margin-top:20px;width:800px">
-      <Ueditor ref="ueTG"
-               id="ed1"
-               height='95'
-               :value='tg'
-               @getEditorTxt="getTgTxt"
-               @updateEditor='getTG'></Ueditor>
-      <div style="margin:20px 0;">
-        <Button @click="exportInnerHTML">export</Button>
-        <Button @click="inputFn(value,pureTxt,pureTxt.length)">inputFn</Button>
-      </div>
-    </div>
-    <div style="margin:0 auto;width:1480px">
-      <div class="mainBox"
-           ref="mainBox">
-        <div v-if="showPage">
+  <div class="bigBox">
 
-          <div class="pages"
-               v-for="(item,index) in pageList"
-               :key="index"
-               ref="page"
-               style="overflow:hidden">
-            <div style="width:500px;height:200px;border:1px solid red;margin:20px auto;"
-                 v-if="index==0"></div>
+    <div class="box">
+      <div class="leftSetting">
+        <div class="settingItem">
+          <p class="settingTitle">选择打印纸张</p>
+          <ul class="selPaperSize">
+            <li :class="paperSize=='A4'?'active':''"
+                @click="changePaperSize('A4')">A4</li>
+            <li :class="paperSize=='A3'?'active':''"
+                @click="changePaperSize('A3')">A3</li>
+            <li :class="paperSize=='B5'?'active':''"
+                @click="changePaperSize('B5')">B5</li>
+            <li :class="paperSize=='B4'?'active':''"
+                @click="changePaperSize('B4')">B4</li>
+            <li :class="paperSize=='16K'?'active':''"
+                @click="changePaperSize('16K')">16K</li>
+            <li :class="paperSize=='8K'?'active':''"
+                @click="changePaperSize('8K')">8K</li>
+          </ul>
+          <div style="clear:both"></div>
+        </div>
+        <div class="settingItem">
+          <p class="settingTitle">选择打印方式</p>
+          <RadioGroup v-model="printingMode"
+                      class="printingModeRadio">
+            <Radio label="1"
+                   style="margin:5px 0">&nbsp;单面打印</Radio>
+            <Radio label="2"
+                   style="margin:5px 0">&nbsp;双面打印</Radio>
+          </RadioGroup>
+        </div>
+        <div class="settingItem">
+          <p class="settingTitle">编辑考试信息</p>
+          <div class="editBtn">点击修改</div>
+        </div>
+        <div class="cutOff"></div>
+        <div class="settingItem">
+          <div class="btns">
+            <img src="../../assets/ylsj.png"
+                 alt=""
+                 class="btnIcon"
+                 style="width:16px;height:16px">
+            试&nbsp;&nbsp;&nbsp;&nbsp;卷
+          </div>
+          <div class="btns">
+            <img src="../../assets/ylsj.png"
+                 alt=""
+                 class="btnIcon"
+                 style="width:16px;height:16px">
+            <!-- <Icon type="ios-eye-outline"
+                class="btnIcon" /> -->
+            答&nbsp;&nbsp;&nbsp;&nbsp;案
+          </div>
+          <div class="btns">
+            <img src="../../assets/ylsj.png"
+                 alt=""
+                 class="btnIcon"
+                 style="width:16px;height:16px">
+            答题卡
+          </div>
+          <div class="btns">
+            <img src="../../assets/bc.png"
+                 alt=""
+                 class="btnIcon"
+                 style="width:16px;height:16px">
+            保&nbsp;&nbsp;&nbsp;&nbsp;存
+          </div>
+          <div class="btns">
+            <img src="../../assets/xz.png"
+                 alt=""
+                 class="btnIcon"
+                 style="width:16px;height:16px">
+            <!-- <Icon type="ios-cloud-download-outline"
+                class="btnIcon"
+                style="font-size:18px" /> -->
+            下&nbsp;&nbsp;&nbsp;&nbsp;载
           </div>
         </div>
       </div>
-      <div class="resBox"
-           ref="resBox"
-           v-html="htmlTxt">
+      <div class="mainPreview">
+        <div v-for="(item,index) in pageList"
+             :key="index"
+             class="pages"
+             ref="page">
+          <h1>假装有试卷</h1>
+        </div>
       </div>
-      <div style="clear:both"></div>
+      <div class="questionTree">
+
+        <div class="settingItem">
+          <p class="settingTitle">添加大题</p>
+          <ul class="addDT">
+            <li v-for="(item,index) in typeList"
+                :key="index"
+                @click="addDT(item.value)">{{item.label}}</li>
+          </ul>
+          <div style="clear:both"></div>
+        </div>
+
+        <p class="settingTitle">试题结构</p>
+        <div class="treeBox">
+          <Tree :data="data5"
+                :render="renderContent"
+                class="demo-tree-render"></Tree>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import Ueditor from "../../components/ueditor";
+
 export default {
   data () {
     return {
-      showPage: true,
-      value: '',
-      htmlTxt: '',
-      pageList: [460],
-      pureTxt: '',
-      tg: '',
+      paperSize: 'A4',
+      printingMode: '1',
+      typeList: [
+        {
+          label: "填空",
+          value: "gap_filling"
+        },
+        {
+          label: "作文",
+          value: "composition"
+        },
+        {
+          label: "判断",
+          value: "judge"
+        },
+        {
+          label: "名词解释",
+          value: "answer"
+        },
+        {
+          label: "简答",
+          value: "shortAnswer"
+        },
+        {
+          label: "论述",
+          value: "discussion"
+        },
+        {
+          label: "单项选择题",
+          value: "single_select"
+        },
+        {
+          label: "多项选择题",
+          value: "multi_select"
+        },
+        {
+          label: "完形填空",
+          value: "cloze_test"
+        },
+        {
+          label: "英语阅读",
+          value: "English_reading"
+        }
+      ],//题型数组
+      pageList: [1, 2],
+      data5: [
+        {
+          title: '一、填空',
+          expand: true,
+          isDT: true,
+          children: [
+            {
+              title: '1.哈哈',
+              expand: true,
+              isDT: false,
+            },
+            {
+              title: '2.呵呵',
+              expand: true,
+              isDT: false,
+            }
+          ]
+        },
+        {
+          title: '二、选择',
+          expand: true,
+          isDT: true,
+          children: [
+            {
+              title: '1.嘻嘻',
+              expand: true,
+              isDT: false,
+            }
+          ]
+        }
+      ],
+      buttonProps: {
+        type: 'default',
+        size: 'small',
+      }
     }
   },
-  components: {
-    Ueditor
-  },
   methods: {
-    getTgTxt (value) {
-      console.log(value)
-      this.pureTxt = value
+    changePaperSize (val) {
+      this.paperSize = val
     },
-    getTG (editorValue) {
-      console.log(editorValue)
-      this.value = editorValue
-    },
-    exportInnerHTML () {
-      this.htmlTxt = this.$refs.mainBox.innerHTML
-    },
-    inputFn (htmlTxt, pureTxt) {
-      // htmlTxt 富文本
-      //  pureTxt 纯文本 
+    addDT (val) {
 
-      //生成虚拟dom,获取富文本高度
-      let creatDiv = document.createElement("div");
-      creatDiv.style.width = "500px";
-      creatDiv.style.margin = "0 auto";
-      creatDiv.innerHTML = htmlTxt;
-      this.$el.append(creatDiv);
-      let domHeight = creatDiv.clientHeight;//DOM的高度
-      creatDiv.style.display = "none";
-      this.$el.removeChild(creatDiv)
-      // 比较高度和剩余高度
-      if (domHeight < this.pageList[this.pageList.length - 1]) {
-        // 放得开
-        let domTxt = "<div style='width:500px;margin:0 auto;'>" + htmlTxt + '</div>'
-        this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
-        this.pageList[this.pageList.length - 1] -= domHeight
-      } else {
-        // 放不开
-        // 拆分虚拟dom
-        let domArr = creatDiv.children//虚拟dom所有子元素
-        // 循环放所有子元素
-        for (let index = 0; index < domArr.length; index++) {
-          // 获取每个子元素的高
-          let creatDiv1 = document.createElement("div");
-          creatDiv1.style.width = "500px";
-          creatDiv1.style.margin = "0 auto";
-          creatDiv1.innerHTML = domArr[index].outerHTML;
-          this.$el.append(creatDiv1);
-          let listItemHeight = creatDiv1.clientHeight //子元素的dom高
-          creatDiv1.style.display = "none";
-          this.$el.removeChild(creatDiv1);
-          // 比较每个子元素和剩余高度
-          if (listItemHeight < this.pageList[this.pageList.length - 1]) {
-            // 放得开
-            let domTxt1 = "<div style='width:500px;margin:0 auto;'>" + domArr[index].outerHTML + '</div>'
-            if (this.$refs.page[this.pageList.length - 1]) {
-              this.$refs.page[this.pageList.length - 1].innerHTML += domTxt1
-              this.pageList[this.pageList.length - 1] -= listItemHeight
-            } else {
-              this.$nextTick(() => {
-                this.$refs.page[this.pageList.length - 1].innerHTML += domTxt1
-                this.pageList[this.pageList.length - 1] -= listItemHeight
-              })
-            }
-          } else {
-            // 放不开
-            // 追加页面
-            this.showPage = false
-            this.pageList.push(700)
-            this.showPage = true
-            // 判断是否为表格或图片
-            let switcher = false
-            if (domArr[index].children) {
-              for (let ii = 0; ii < domArr[index].children.length; ii++) {
-                if (domArr[index].children[ii].tagName == 'IMG') {
-                  switcher = true
+    },
+    renderContent (h, { root, node, data }) {
+      console.log(data)
+      if (data.isDT) {
+        return h('span', {
+          style: {
+            display: 'inline-block',
+            width: '100%'
+          }
+        }, [
+            h('span', [
+              h('span', {
+                style: {
+                  //  fontSize:'16px'  
+                  fontWeight: 'bolder'
                 }
+              }, data.title)
+            ]),
+            h('span', {
+              style: {
+                display: 'inline-block',
+                float: 'right',
+                marginRight: '32px'
               }
-            }
-            if (switcher || domArr[index].tagName == 'TABLE') {
-              // 放入表格或图片              
-              this.$nextTick(() => {
-                let domTxt1 = "<div style='width:500px;margin:0 auto'>" + domArr[index].outerHTML + '</div>'
-                this.$refs.page[this.pageList.length - 1].innerHTML += domTxt1
-                this.pageList[this.pageList.length - 1] -= listItemHeight
-              })
-            } else {
-              // 切分dom
-              let num = creatDiv1.innerText.length - 1
-              this.inputFn1(creatDiv1.innerText, creatDiv1.innerHTML, num)
-            }
-          }
-        }
-      }
-    },
-    inputFn1 (txt, pureTxt, count, nextTxt) {
-      let num = count
-      let creatDiv = document.createElement("div");
-      creatDiv.style.width = "500px";
-      creatDiv.style.margin = "0 auto";
-      creatDiv.innerHTML = txt;
-      this.$el.append(creatDiv);
-      let eachXtHeight = creatDiv.clientHeight;//DOM的高度
-      creatDiv.style.display = "none";
-      let domTxt = "<div style='width:500px;margin:0 auto'>" + txt + '</div>'
-      if (eachXtHeight < this.pageList[this.pageList.length - 1]) {
-        this.$nextTick(() => {
-          this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
-          this.pageList[this.pageList.length - 1] -= eachXtHeight
-        })
-        if (nextTxt) {
-          this.showPage = false
-          this.pageList.push(700)
-          this.showPage = true
-          let newPage = this.cutOutWidthBq(pureTxt, txt, num + 1)[1]
-          let domTxt1 = "<div style='width:500px;margin:0 auto'>" + newPage + '</div>'
-          let creatDiv1 = document.createElement("div");
-          creatDiv1.style.width = "500px";
-          creatDiv1.style.margin = "0 auto";
-          creatDiv1.innerHTML = newPage;
-          this.$el.append(creatDiv1);
-          let count1 = creatDiv1.innerText.length
-          let newTXT = creatDiv1.innerText
-          creatDiv1.style.display = "none";
-          this.inputFn1(newPage, newTXT, count1)
-        }
+            }, [
+                h('div', {
+                  style: {
+                    marginRight: '8px',
+                    width: '72px',
+                    height: '24px',
+                    border: '1px solid #007ae1',
+                    color: '#007ae1',
+                    borderRadius: '4px',
+                    lineHeight: '24px',
+                    textAlign: 'center',
+                    display: 'inline-block',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  },
+                  on: {
+                    click: () => { this.append(data) }
+                  }
+                }, '添加小题'),
+                h('div', {
+                  style: {
+                    marginRight: '8px',
+                    width: '44px',
+                    height: '24px',
+                    // border: '1px solid #007ae1',
+                    backgroundColor: '#007ae1',
+                    color: '#fff',
+                    borderRadius: '4px',
+                    lineHeight: '24px',
+                    textAlign: 'center',
+                    display: 'inline-block',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  },
+                  on: {
+                    click: () => { }
+                  }
+                }, '编辑'),
+                h('div', {
+                  style: {
+                    width: '44px',
+                    height: '24px',
+                    // border: '1px solid red',
+                    backgroundColor: 'red',
+                    color: 'white',
+                    borderRadius: '4px',
+                    lineHeight: '24px',
+                    textAlign: 'center',
+                    display: 'inline-block',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  },
+                  on: {
+                    click: () => { this.remove(root, node, data) }
+                  }
+                }, '删除')
+              ])
+          ]);
       } else {
-        let arr = this.cutOutWidthBq(pureTxt, txt, num)
-        num--
-        let creatDiv2 = document.createElement("div");
-        creatDiv2.innerHTML = arr[0];
-        let creatDiv2Txt = creatDiv2.innerText
-        this.inputFn1(arr[0], creatDiv2Txt, num, arr[1])
+        return h('span', {
+          style: {
+            display: 'inline-block',
+            width: '100%'
+          }
+        }, [
+            h('span', [
+              h('span', data.title)
+            ]),
+            h('span', {
+              style: {
+                display: 'inline-block',
+                float: 'right',
+                marginRight: '32px'
+              }
+            }, [
+                h('div', {
+                  style: {
+                    marginRight: '8px',
+                    width: '44px',
+                    height: '24px',
+                    border: '1px solid #007ae1',
+                    color: '#007ae1',
+                    borderRadius: '4px',
+                    lineHeight: '24px',
+                    textAlign: 'center',
+                    display: 'inline-block',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  },
+                  on: {
+                    click: () => { }
+                  }
+                }, '编辑'),
+                h('div', {
+                  style: {
+                    width: '44px',
+                    height: '24px',
+                    border: '1px solid red',
+                    color: 'red',
+                    borderRadius: '4px',
+                    lineHeight: '24px',
+                    textAlign: 'center',
+                    display: 'inline-block',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  },
+                  on: {
+                    click: () => { this.remove(root, node, data) }
+                  }
+                }, '删除')
+              ])
+          ]);
       }
-    },
-    //-------------------------------------------------------------------------------------------------
-    cutOutWidthBq (txt, ttt, index) {
-      //截取富文本txt纯文本、ttt富文本、index截取点
-      ttt = this.replaceBq(ttt)
-      let a = txt.substring(index) //后
-      let b = txt.substring(0, index) //前
-      let c = txt.substring(index, index + 1) //截点
-      let i = b.split(c).length //第几个截
-      let arr = ttt.split(c)
 
-      let res1 = ''
-      let res2 = ''
-      for (let index = 0; index < arr.length; index++) {
-        if (index < i) {
-          res1 = res1 + arr[index] + c
-        } else {
-          res2 = res2 + c + arr[index]
-        }
-      }
-      res1 = res1.substr(0, res1.length - 1);
-      let bq = ''
-      let switcher = false
-      for (let index = 0; index < res1.length; index++) {
-        if (res1[index] == '>') {
-          bq += res1[index]
-          switcher = false
-        }
-        if (switcher) {
-          bq += res1[index]
-        }
-        if (res1[index] == '<') {
-          switcher = true
-          bq += res1[index]
-        }
-      }
-      switcher = false
-      bq = bq.replace(new RegExp('>', 'g'), '')
-      bq = bq.split('<')
-      // this.removeBq(bq)
-      for (let i = 0; i < bq.length; i++) {
-        if (!bq[i]) {
-          bq.splice(i, 1)
-        }
-      }
-      for (let index = bq.length - 1; index >= 0; index--) {
-        res2 = `<${bq[index]}>` + res2
-        res1 = res1 + `</${bq[index]}>`
-      }
-      res1 = this.resume(res1)
-      res2 = this.resume(res2)
-      return [res1, res2]
     },
-    removeBq (params) {
-      //移除标签
-      let arr = params
-      for (let index1 = 0; index1 < arr.length; index1++) {
-        if (arr[index1].indexOf('style') > -1) {
-          arr[index1] = arr[index1].replace(' ', '')
-        }
-      }
-      let str = arr.join('')
-      if (str.indexOf('/') > 0) {
-        for (let index2 = arr.length - 1; index2 > 0; index2--) {
-          let demo = [];
-          let demo1 = []
-          if (arr[index2]) {
-            demo = arr[index2].split('style')
-          }
-          if (arr[index2 - 1]) {
-            demo1 = arr[index2 - 1].split('style')
-          }
-          if (demo[0] == '/' + demo1[0]) {
-            arr.splice(index2 - 1, 2)
-          }
-        }
-        for (let index3 = 0; index3 < arr.length; index3++) {
-          if (arr[index3].indexOf('style') > -1) {
-            arr[index3] = arr[index3].replace(' ', '')
-          }
-        }
-        this.removeBq(arr)
-      } else {
-        for (let index4 = 0; index4 < arr.length; index4++) {
-          if (arr[index4].indexOf('style') > -1) {
-            arr[index4] = arr[index4].replace(' ', '')
-          }
-        }
-      }
+    append (data) {
+      const children = data.children || [];
+      children.push({
+        title: 'appended node',
+        expand: true
+      });
+      this.$set(data, 'children', children);
     },
-    replaceBq (val) {
-      let ttt = val
-      ttt = ttt.replace(new RegExp('<blockquote>', 'g'), '<~@&>');
-      ttt = ttt.replace(new RegExp('</blockquote>', 'g'), '</~@&>');
-      ttt = ttt.replace(new RegExp('<strong>', 'g'), '<@#$>');
-      ttt = ttt.replace(new RegExp('</strong>', 'g'), '</@#$>');
-      ttt = ttt.replace(new RegExp('<span>', 'g'), '<~@$>');
-      ttt = ttt.replace(new RegExp('</span>', 'g'), '</~@$>');
-      ttt = ttt.replace(new RegExp('<sup>', 'g'), '<~@^>');
-      ttt = ttt.replace(new RegExp('</sup>', 'g'), '</~@^>');
-      ttt = ttt.replace(new RegExp('<img>', 'g'), '<~$^>');
-      ttt = ttt.replace(new RegExp('</img>', 'g'), '</~$^>');
-      ttt = ttt.replace(new RegExp('<pre>', 'g'), '<@^&>');
-      ttt = ttt.replace(new RegExp('</pre>', 'g'), '</@^&>');
-      ttt = ttt.replace(new RegExp('<em>', 'g'), '<#$^>');
-      ttt = ttt.replace(new RegExp('</em>', 'g'), '</#$^>');
-      ttt = ttt.replace(new RegExp('<ol>', 'g'), '<~#$>');
-      ttt = ttt.replace(new RegExp('</ol>', 'g'), '</~#$>');
-      ttt = ttt.replace(new RegExp('<li>', 'g'), '<~#^>');
-      ttt = ttt.replace(new RegExp('</li>', 'g'), '</~#^>');
-      ttt = ttt.replace(new RegExp('<ul>', 'g'), '<~#&>');
-      ttt = ttt.replace(new RegExp('</ul>', 'g'), '</~#&>');
-      ttt = ttt.replace(new RegExp('<p>', 'g'), '<~@#>');
-      ttt = ttt.replace(new RegExp('</p>', 'g'), '</~@#>');
-      ttt = ttt.replace(new RegExp(`<br/>`, 'g'), '@$^');
-      return ttt
-    },
-    resume (newZ) {
-      let ttt = newZ
-      ttt = ttt.replace(new RegExp('<~@&>', 'g'), '<blockquote>');
-      ttt = ttt.replace(new RegExp('</~@&>', 'g'), '</blockquote>');
-      ttt = ttt.replace(new RegExp('<\\@\\#\\$>', 'g'), '<strong>');
-      ttt = ttt.replace(new RegExp('</\\@\\#\\$>', 'g'), '</strong>');
-      ttt = ttt.replace(new RegExp('<~@\\$>', 'g'), '<span>');
-      ttt = ttt.replace(new RegExp('</~@\\$>', 'g'), '</span>');
-      ttt = ttt.replace(new RegExp('<~@\\^>', 'g'), '<sup>');
-      ttt = ttt.replace(new RegExp('</~@\\^>', 'g'), '</sup>');
-      ttt = ttt.replace(new RegExp('<~\\$\\^>', 'g'), '<img>');
-      ttt = ttt.replace(new RegExp('</~\\$\\^>', 'g'), '</img>');
-      ttt = ttt.replace(new RegExp('<#\\$\\^>', 'g'), '<em>');
-      ttt = ttt.replace(new RegExp('</#\\$\\^>', 'g'), '</em>');
-      ttt = ttt.replace(new RegExp('<~#\\$>', 'g'), '<ol>');
-      ttt = ttt.replace(new RegExp('</~#\\$>', 'g'), '</ol>');
-      ttt = ttt.replace(new RegExp('<~#\\^>', 'g'), '<li>');
-      ttt = ttt.replace(new RegExp('</~#\\^>', 'g'), '</li>');
-      ttt = ttt.replace(new RegExp('<~#&>', 'g'), '<ul>');
-      ttt = ttt.replace(new RegExp('</~#&>', 'g'), '</ul>');
-      ttt = ttt.replace(new RegExp('<~@#>', 'g'), '<p>');
-      ttt = ttt.replace(new RegExp('</~@#>', 'g'), '</p>');
-      ttt = ttt.replace(new RegExp('@\\$\\^', 'g'), `<br/>`);
-      ttt = ttt.replace(new RegExp('<@\\^&>', 'g'), `<pre>`);
-      ttt = ttt.replace(new RegExp('</@\\^&>', 'g'), `</pre>`);
-      return ttt
+    remove (root, node, data) {
+      const parentKey = root.find(el => el === node).parent;
+      const parent = root.find(el => el.nodeKey === parentKey).node;
+      const index = parent.children.indexOf(data);
+      parent.children.splice(index, 1);
     }
   }
 }
@@ -332,33 +362,148 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-* {
-  padding: 0;
-  margin: 0;
+.bigBox {
+  width: 100%;
+  background: #eee;
 }
 .box {
-  border: 1px solid #000;
+  margin: 0 auto;
+  /* width: 100vw; */
+  height: 100vh;
+  width: 1360px;
+  overflow-y: hidden;
+  overflow-x: auto;
+  background: white;
+  /* background: springgreen; */
+  /* border: 1px solid red; */
 }
-.mainBox {
-  width: 700px;
-  height: 800px;
-  background: #eee;
-  margin: 0 20px;
+.leftSetting {
+  width: 150px;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
   float: left;
-  overflow: auto;
+  padding-left: 20px;
 }
-.resBox {
-  width: 700px;
-  height: 800px;
-  background: #ccc;
-  margin: 0 20px;
+.settingTitle {
+  font-size: 18px;
+}
+.settingItem {
+  margin: 20px 0 30px 0;
+}
+.selPaperSize {
+  /* height: 36px; */
+}
+.selPaperSize li {
   float: left;
-  overflow: auto;
+  width: 50px;
+  height: 26px;
+  border: 1px solid black;
+  border-radius: 4px;
+  line-height: 26px;
+  text-align: center;
+  margin: 10px 5px 0 5px;
+  cursor: pointer;
 }
-.pages {
-  width: 600px;
-  height: 700px;
+.selPaperSize .active {
+  border: 2px solid #007ae1;
+  line-height: 25px;
+  color: #007ae1;
+}
+.selPaperSize li:hover {
+  border: 2px solid #007ae1;
+  line-height: 25px;
+  color: #007ae1;
+}
+.printingModeRadio {
+  margin-top: 10px;
+  margin-left: 6px;
+}
+.settingItem .editBtn {
+  width: 100px;
+  height: 32px;
+  background: #007ae1;
+  border-radius: 4px;
+  line-height: 32px;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.addDT {
+  margin-top: 5px;
+}
+.addDT li {
+  float: left;
+  padding: 0 10px;
+  height: 26px;
+  border: 1px solid black;
+  border-radius: 4px;
+  line-height: 26px;
+  text-align: center;
+  margin: 5px 5px;
+  cursor: pointer;
+}
+.addDT li:hover {
+  border: 1px solid #007ae1;
+  color: #007ae1;
+}
+.btns {
+  width: 100px;
+  height: 32px;
+  /* border: 1px solid #007ae1; */
+  background-color: #007ae1;
+  color: white;
+  border-radius: 4px;
+  line-height: 32px;
+  text-align: center;
+  cursor: pointer;
+  margin: 5px 0;
+  float: left;
+}
+.btns .btnIcon {
+  font-size: 26px;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+.mainPreview {
+  width: 810px;
+  height: 100vh;
+  float: left;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #999;
+}
+.mainPreview .pages {
+  width: 786px;
+  height: 1122px;
+  background: white;
   margin: 20px auto;
-  background: #fff;
+  /* vertical-align:text-bottom */
+}
+.questionTree {
+  width: 400px;
+  height: 100vh;
+  float: left;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-left: 20px;
+  padding-top: 20px;
+}
+.treeBox {
+  width: 100%;
+}
+.treeBox >>> .demo-tree-render .ivu-tree-title {
+  width: 100%;
+}
+.cutOff {
+  border: 1px dashed #ccc;
+  margin-left: -20px;
+}
+.settingItem >>> .ivu-radio-inner {
+  border: 1px solid black;
+}
+.settingItem >>> .ivu-radio-checked .ivu-radio-inner {
+  border-color: #2d8cf0;
 }
 </style>
