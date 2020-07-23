@@ -24,4 +24,12 @@ ul,
 ol {
   list-style: none;
 }
+.ivu-modal-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ivu-modal-wrap .ivu-modal {
+  top: 0;
+}
 </style>
