@@ -64,7 +64,7 @@ export default {
           ['undo', 'redo', '|', 'kityformula', 'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'superscript', 'subscript', 'removeformat', 'formatmatch', 'blockquote', 'pasteplain', '|', 'forecolor', 'backcolor', 'simpleupload', 'insertimage', 'insertcode', '|', 'inserttable', 'edittable']
         ],
         initialFrameHeight: this.height,
-        initialFrameWidth: 800,
+        initialFrameWidth: 650,
         enableAutoSave: false,
       }
     };

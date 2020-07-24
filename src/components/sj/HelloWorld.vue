@@ -345,11 +345,36 @@
         </div>
       </div>
     </transition>
-
+    <!-- 添加小题弹窗 -->
+    <transition name="fade">
+      <div class="new-upload-dialog"
+           v-if="showAddXT">
+        <div id="new-upload-dialog-content">
+          <div id="new-upload-dialog-title">
+            添加
+          </div>
+          <add-new :testType="addXTType"
+                   :testValue="XTValue"
+                   @newChildTest="newChildTest"
+                   @saveEditTest="saveEditTest"></add-new>
+          <div id="new-upload-dialog-buttons">
+            <Button id="cancelButton"
+                    @click="showAddXT=false">取消
+            </Button>
+            <Button id="saveButton"
+                    type="primary"
+                    @click="confirmAddXT">保存
+            </Button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
+import addNew from "./addNew";
+import bus from "../../common/reLoadBus";
 
 export default {
   data () {
@@ -455,18 +480,30 @@ export default {
       },//考试头部信息
       ksxxBackup: {},//考试头部信息备份
       showKSXX: false,//修改考试信息弹窗
+      showAddXT: false,//添加小题弹窗
+      addXTType: '',//添加小题类型
+      XTValue: {},//添加/编辑小题信息
+      parentIndex: '',//添加编辑小题时对应大题的index
+      childIndex: '',//编辑小题时小题的index
+      xtth: ''//编辑小题时保存的小题题号
     }
   },
+  components: {
+    addNew
+  },
   mounted () {
-    // 年级专业显示超出一行时重新设置改行css
-    this.$refs.njzy[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
-    this.$refs.njzy[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
-    this.$refs.mtjs[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
-    this.$refs.mtjs[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
-    this.$refs.mtjsRes[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
-    this.$refs.mtjsRes[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
+    this.setCSS()
   },
   methods: {
+    setCSS () {
+      // 年级专业显示超出一行时重新设置改行css
+      this.$refs.njzy[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
+      this.$refs.njzy[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
+      this.$refs.mtjs[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
+      this.$refs.mtjs[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
+      this.$refs.mtjsRes[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
+      this.$refs.mtjsRes[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
+    },
     changePaperSize (val) {
       // 切换打印尺寸
       this.paperSize = val
@@ -554,7 +591,11 @@ export default {
                     cursor: 'pointer'
                   },
                   on: {
-                    click: () => { this.append(data) }
+                    click: () => {
+                      this.showAddXT = true
+                      this.addXTType = data.type;
+                      this.parentIndex = this.treeData.indexOf(data);
+                    }
                   }
                 }, '添加小题'),
                 h('div', {
@@ -637,7 +678,17 @@ export default {
                     cursor: 'pointer'
                   },
                   on: {
-                    click: () => { }
+                    click: () => {
+                      const parentKey = root.find(el => el === node).parent;
+                      const parent = root.find(el => el.nodeKey === parentKey).node;
+                      this.parentIndex = this.treeData.indexOf(parent)
+                      this.childIndex = parent.children.indexOf(data)
+                      this.addXTType = data.type;
+                      this.xtth = data.th
+                      this.XTValue = data
+                      this.$set(this.XTValue, "newData", true);
+                      this.showAddXT = true
+                    }
                   }
                 }, '编辑'),
                 h('div', {
@@ -707,6 +758,27 @@ export default {
       }
       this.confirmDel = false
     },
+    confirmAddXT () {
+      // 确认添加小题
+      bus.$emit("saveChild123", true);
+    },
+    newChildTest (data) {
+      //保存新增小题
+      let th = this.treeData[this.parentIndex].children.length + 1
+      this.$set(data, "title", '第' + th + '小题');
+      this.$set(data, "th", th);
+      this.$set(data, "expand", true);
+      this.treeData[this.parentIndex].children.push(data)
+      this.showAddXT = false
+    },
+    saveEditTest (data) {
+      console.log(data)
+      this.$set(data, "title", '第' + this.xtth + '小题');
+      this.$set(data, "th", this.xtth);
+      this.$set(data, "expand", true);
+      this.treeData[this.parentIndex].children.splice(this.childIndex, 1, data);
+      this.showAddXT = false;
+    },
     // -----------------------utils-------------------------------------
     toChinesNum (num) {
       //阿拉伯数字转中文数字
@@ -750,6 +822,17 @@ export default {
       // watch修改考试信息弹窗 关闭后清空考试信息备份
       if (!this.showKSXX) {
         this.ksxxBackup = {}
+      }
+    },
+    showAddXT () {
+      // watch添加修改小题弹窗 关闭后清空相关数据
+      if (!this.showAddXT) {
+        this.xtth = ''
+        this.addXTType = ''
+        this.XTValue = {}
+        this.parentIndex = ''
+        this.childIndex = ''
+        this.xtth = ''
       }
     }
   }
@@ -1022,5 +1105,88 @@ export default {
   font-weight: 600;
   font-size: 16px;
   position: relative;
+}
+</style>
+<style lang="less" scoped>
+/* 添加小题弹窗 */
+.new-upload-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 2;
+
+  #new-upload-dialog-content {
+    overflow-y: auto;
+    position: absolute;
+    max-height: 800px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    width: 760px;
+    padding: 0 25px 25px;
+    box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+
+    #new-upload-dialog-title {
+      height: 55px;
+      font-size: 16px;
+      font-family: PingFangSC-Medium, PingFangSC;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.85);
+      line-height: 55px;
+      border-bottom: 1px solid #d9d9d9;
+    }
+
+    #new-upload-dialog-buttons {
+      padding-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      border-top: 1px solid #d9d9d9;
+
+      .ivu-btn-primary {
+        width: 87px;
+        height: 43px;
+        background: rgba(77, 124, 255, 1);
+        border-radius: 4px;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        span {
+          font-size: 14px;
+        }
+
+        &:hover {
+          background: rgba(77, 124, 255, 0.8);
+        }
+      }
+
+      #cancelButton {
+        margin-right: 12px;
+        width: 87px;
+        height: 43px;
+        background: rgba(255, 255, 255, 1);
+        border: 1px solid rgba(217, 217, 217, 1);
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        span {
+          font-size: 14px;
+        }
+
+        &:hover {
+          border-color: rgba(77, 124, 255, 1);
+          color: rgba(77, 124, 255, 1);
+        }
+      }
+    }
+  }
 }
 </style>
