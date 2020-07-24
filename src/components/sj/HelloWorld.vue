@@ -34,7 +34,8 @@
         </div>
         <div class="settingItem">
           <p class="settingTitle">编辑考试信息</p>
-          <div class="editBtn">点击修改</div>
+          <div class="editBtn"
+               @click="editKSXX">点击修改</div>
         </div>
         <div class="cutOff"></div>
         <div class="settingItem">
@@ -81,7 +82,143 @@
              :key="index"
              class="pages"
              ref="page">
-          <h1>假装有试卷</h1>
+          <!--空白头-->
+          <div style="height: 80px"></div>
+          <!--装订线-->
+          <div class="dashedLine">
+            <div style="line-height: 32px; margin-bottom: 10px;border: 1px solid #000">
+              <span style="width: 150px;display: inline-block;margin-left:230px">学号：</span>
+              <span style="width: 150px;display: inline-block">姓名：</span>
+              <span style="width: 150px;display: inline-block">学院：</span>
+              <span style="width: 150px;display: inline-block">班级：</span>
+            </div>
+            <div style="border-bottom: 1px dotted #000000;padding-bottom: 20px">
+              <div style="position:absolute;left: 25%;top: 56px;">线</div>
+              <div style="position:absolute;left: 50%;top: 56px;">订</div>
+              <div style="position:absolute;left: 75%;top: 56px;">装</div>
+            </div>
+          </div>
+          <!--卷头-->
+          <div id="new-upload-header"
+               style="margin-left: 125px"
+               v-if="index==0">
+            <div id="header-title"
+                 style="margin-left: -22px;">南宁学院{{titleInfo.xymc}}考试(查)试卷</div>
+            <div style="height: 32px"></div>
+            <div class="header-content1"
+                 style="margin:0 auto">
+              <div class="header-content-item">
+                <div class="header-content-item-right">《<span style="min-width:515px;text-align:center;display:inline-block">{{titleInfo.kcmc}}</span>》课程 </div>
+              </div>
+              <div class="noWidth">
+                <div style="margin-right: 5px;float: left;line-height: 35px"
+                     v-for="(itemA,indexA) in titleInfo.sjTypeList"
+                     :key="indexA">
+                  <div v-if="titleInfo.sjxx==itemA.value">
+                    <span>{{itemA.mc}}</span>
+                  </div>
+                </div>
+                <div style="clear:both"></div>
+              </div>
+              <div style="clear:both"></div>
+            </div>
+            <div style="clear: both"></div>
+            <div class="headTable">
+              <div class="headTableRow">
+                <div class="headTableCol1"
+                     ref="njzy"
+                     style="width:80px">年级专业</div>
+                <div class="headTableCol1"
+                     ref="njzyRes"
+                     style="width:300px">{{titleInfo.grade}}</div>
+                <div class="headTableCol1"
+                     ref="mtjs"
+                     style="width:80px">命题教师</div>
+                <div class="headTableCol1"
+                     ref="mtjsRes"
+                     style="border-right:none;width:164px">{{titleInfo.mtjs}}</div>
+                <div style="clear:both"></div>
+              </div>
+              <div class="headTableRow"
+                   style="border-bottom:none">
+
+                <div class="headTableCol1"
+                     style="width:80px">考试形式</div>
+                <div class="headTableCol1"
+                     style="width:300px">
+                  <span v-if="titleInfo.ksfs==='2'">闭卷</span>
+                  <span v-if="titleInfo.ksfs==='1'">开卷</span>
+                </div>
+                <div class="headTableCol1"
+                     style="width:80px">考核时长</div>
+                <div class="headTableCol1"
+                     style="border-right:none;width:164px"><span style="text-decoration: underline">&nbsp;&nbsp;{{titleInfo.kssc}}&nbsp;&nbsp;</span>分钟</div>
+                <div style="clear:both"></div>
+              </div>
+            </div>
+            <div style="clear: both"></div>
+            <div class="header-table">
+              <div class="header-table-col"
+                   style="width: 83px;border-left: 2px solid #000000">
+                <div class="header-table-th">
+                  题号
+                </div>
+                <div class="header-table-tb">
+                  得分
+                </div>
+              </div>
+              <div v-if="treeData.length">
+                <div class="header-table-col"
+                     :style="{width:(465/(treeData.length))+'px',}"
+                     v-for="(itemB,indexB) in treeData"
+                     :key="indexB">
+                  <div class="header-table-th">
+                    {{itemB.th}}
+                  </div>
+                  <div class="header-table-tb"></div>
+                </div>
+              </div>
+              <div v-else>
+                <div class="header-table-col"
+                     style="width:465px">
+                  <div class="header-table-th"> </div>
+                  <div class="header-table-tb"> </div>
+                </div>
+              </div>
+              <div class="header-table-col"
+                   style="width: 82px">
+                <div class="header-table-th">
+                  总分
+                </div>
+                <div class="header-table-tb">
+                </div>
+              </div>
+            </div>
+            <div class="header-table"
+                 style="margin-top:0;border-top:none">
+              <div class="header-table-col"
+                   style="width: 83px;border-left: 2px solid #000000">
+                <div class="header-table-tb">
+                  阅卷人
+                </div>
+              </div>
+              <div class="header-table-col"
+                   style="width: 282px;">
+                <div class="header-table-tb"> </div>
+              </div>
+              <div class="header-table-col"
+                   style="width: 83px;">
+                <div class="header-table-tb">
+                  统分人
+                </div>
+              </div>
+              <div class="header-table-col"
+                   style="width: 182px">
+                <div class="header-table-tb"> </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
       <!-- 右侧添加试题部分 -->
@@ -156,6 +293,58 @@
         </div>
       </div>
     </transition>
+    <!-- 修改考试信息弹窗-->
+    <transition name="fade">
+      <div v-if="showKSXX"
+           style="width:100vw;height:100vh;position:fixed;background:rgba(0,0,0,0.5);z-index:1000;top:0;left:0">
+        <div style="width:500px;background:rgba(255,255,255,1);box-shadow:0px 4px 12px 0px rgba(0,0,0,0.2);border-radius:4px;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);">
+          <p style="font-size:18px;margin:20px 0 0 30px">编辑考试信息</p>
+          <p style="font-size:14px;margin:25px 40px">
+            <span style="width:80px;text-align:right;display:inline-block;margin-right:10px;">课程名称:</span>
+            <Input v-model="ksxxBackup.kcmc"
+                   style="width: 300px" />
+          </p>
+          <p style="font-size:14px;margin:25px 40px">
+            <span style="width:80px;text-align:right;display:inline-block;margin-right:10px;">年级专业:</span>
+            <Input v-model="ksxxBackup.grade"
+                   style="width: 300px" />
+          </p>
+          <p style="font-size:14px;margin:25px 40px">
+            <span style="width:80px;text-align:right;display:inline-block;margin-right:10px;">考试形式:</span>
+            <RadioGroup v-model="ksxxBackup.ksfs">
+              <Radio label="2"
+                     style="margin-right:15px">&nbsp;闭卷</Radio>
+              <Radio label="1"
+                     style="margin-right:15px">&nbsp;开卷</Radio>
+            </RadioGroup>
+          </p>
+          <p style="font-size:14px;margin:25px 40px">
+            <span style="width:80px;text-align:right;display:inline-block;margin-right:10px;">考试时长:</span>
+            <InputNumber :min="0"
+                         v-model="ksxxBackup.kssc"
+                         :precision='0'
+                         style="width:200px;"></InputNumber>
+          </p>
+          <p style="font-size:14px;margin:25px 40px">
+            <span style="width:80px;text-align:right;display:inline-block;margin-right:10px;">试卷信息:</span>
+            <span style="display:inline-block;width:300px;vertical-align: top;">
+              <RadioGroup v-model="ksxxBackup.sjxx">
+                <Radio v-for="(item,index) in ksxxBackup.sjTypeList"
+                       :label="item.value"
+                       :key="index"
+                       style="margin-right:15px">&nbsp;{{item.mc}}</Radio>
+              </RadioGroup>
+            </span>
+          </p>
+          <div style="width:280px;height:36px;margin:0 auto;margin-bottom:30px;">
+            <div style="width:120px;height:36px;font-size:16px;line-height:36px;text-align:center;cursor:pointer;float:left;margin:0 10px;border-radius:4px;background:#007ae1;color:white"
+                 @click=subKSXX>确定</div>
+            <div style="width:120px;height:36px;font-size:16px;line-height:36px;text-align:center;cursor:pointer;float:left;margin:0 10px;border-radius:4px;border:1px solid #ccc;color:#bbb"
+                 @click="showKSXX=false">取消</div>
+          </div>
+        </div>
+      </div>
+    </transition>
 
   </div>
 </template>
@@ -220,15 +409,77 @@ export default {
         sm: ''
       },//编辑新增大题信息
       confirmDel: false,//确认删除弹窗
-      delInfo: {}//确认删除信息
+      delInfo: {},//确认删除信息
+      titleInfo: {
+        xymc: '2019-2020学年第一学期',
+        kcmc: '母猪的产后护理',
+        sjTypeList: [
+          {
+            mc: 'A卷',
+            value: '1'
+          },
+          {
+            mc: 'B卷',
+            value: '2'
+          },
+          {
+            mc: 'C卷',
+            value: '3'
+          },
+          {
+            mc: 'D卷',
+            value: '4'
+          },
+          {
+            mc: 'E卷',
+            value: '5'
+          },
+          {
+            mc: 'F卷',
+            value: '6'
+          },
+          {
+            mc: 'G卷',
+            value: '7'
+          },
+          {
+            mc: 'H卷',
+            value: '8'
+          }
+        ],
+        grade: '2020级养猪与种地',
+        ksfs: '1',
+        mtjs: '养猪大户王铁牛',
+        kssc: 120,
+        sjxx: '1'
+      },//考试头部信息
+      ksxxBackup: {},//考试头部信息备份
+      showKSXX: false,//修改考试信息弹窗
     }
   },
   mounted () {
+    // 年级专业显示超出一行时重新设置改行css
+    this.$refs.njzy[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
+    this.$refs.njzy[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
+    this.$refs.mtjs[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
+    this.$refs.mtjs[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
+    this.$refs.mtjsRes[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
+    this.$refs.mtjsRes[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
   },
   methods: {
     changePaperSize (val) {
       // 切换打印尺寸
       this.paperSize = val
+    },
+    editKSXX () {
+      // 点击显示修改考试信息,把考试信息备份,在备份中修改
+      this.showKSXX = true
+      this.ksxxBackup = JSON.parse(JSON.stringify(this.titleInfo))
+    },
+    subKSXX () {
+      // 点击提交修改考试信息,把修改过的备份赋值给真实数据
+      this.titleInfo = JSON.parse(JSON.stringify(this.ksxxBackup))
+      this.showKSXX = false
     },
     showAddDT (val) {
       // 点击添加大题
@@ -494,6 +745,12 @@ export default {
       if (!this.confirmDel) {
         this.delInfo = {}
       }
+    },
+    showKSXX () {
+      // watch修改考试信息弹窗 关闭后清空考试信息备份
+      if (!this.showKSXX) {
+        this.ksxxBackup = {}
+      }
     }
   }
 }
@@ -611,6 +868,7 @@ export default {
   height: 1122px;
   background: white;
   margin: 20px auto;
+  position: relative;
 }
 .questionTree {
   width: 400px;
@@ -631,10 +889,10 @@ export default {
   border: 1px dashed #ccc;
   margin-left: -20px;
 }
-.settingItem >>> .ivu-radio-inner {
+.bigBox >>> .ivu-radio-inner {
   border: 1px solid black;
 }
-.settingItem >>> .ivu-radio-checked .ivu-radio-inner {
+.bigBox >>> .ivu-radio-checked .ivu-radio-inner {
   border-color: #2d8cf0;
 }
 .bigBox >>> .ivu-input-number-handler-wrap {
@@ -642,5 +900,127 @@ export default {
 }
 .bigBox >>> textarea {
   resize: none;
+}
+/* 试卷部分css */
+.dashedLine {
+  height: 70px;
+  width: 957.66px;
+  background-color: #ffffff;
+  font-size: 14px;
+  font-family: SimSun, '新罗马', 'Times New Roman', '宋体', SimSun-ExtB, NSimSun,
+    serif, 'STSong';
+  position: absolute;
+  z-index: 2;
+  -moz-transform: rotate(-90deg);
+  -webkit-transform: rotate(-90deg);
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+  top: 530px;
+  right: 240px;
+}
+
+.new-upload1 #new-upload-header {
+  width: 630px;
+  background: rgba(255, 255, 255, 1);
+}
+
+#new-upload-header #header-title {
+  width: 100%;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 800;
+  color: rgba(34, 34, 34, 1);
+  line-height: 26px;
+  overflow: hidden;
+}
+
+#new-upload-header .header-content1 {
+  width: auto;
+  margin-bottom: 15px;
+}
+
+#new-upload-header .header-content1 .header-content-item {
+  float: left;
+  margin-right: 20px;
+  /* height: 35px; */
+  line-height: 35px;
+  font-size: 16px;
+  color: rgba(33, 37, 41, 1);
+  font-weight: 600;
+}
+
+#new-upload-header
+  .header-content1
+  .header-content-item
+  .header-content-item-right {
+  float: left;
+}
+
+#new-upload-header .header-table,
+.content-xzt-datxl .header-table {
+  margin-top: 20px;
+  width: 630px;
+  border-top: 2px solid #000000;
+  font-size: 16px;
+  font-weight: normal;
+  color: rgba(34, 34, 34, 1);
+  overflow: hidden;
+}
+
+#new-upload-header .header-table .no-data-col,
+.content-xzt-datxl .no-data-col {
+  float: left;
+  width: 547px;
+  height: 180px;
+  text-align: center;
+  line-height: 180px;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+}
+
+#new-upload-header .header-table .header-table-col,
+.content-xzt-datxl .header-table-col {
+  float: left;
+}
+
+#new-upload-header .header-table .header-table-th,
+.content-xzt-datxl .header-table-th {
+  text-align: center;
+  height: 40px;
+  line-height: 40px;
+  padding-left: 5px;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  font-weight: 600;
+}
+
+#new-upload-header .header-table .header-table-tb,
+.content-xzt-datxl .header-table-tb {
+  text-align: center;
+  height: 40px;
+  line-height: 40px;
+  padding-left: 5px;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  word-wrap: break-word;
+  font-weight: 600;
+}
+.headTable {
+  width: 630px;
+  border: 2px solid #000000;
+  margin-top: 20px;
+}
+.headTableRow {
+  border-bottom: 2px solid #000000;
+}
+.headTableCol1 {
+  min-height: 40px;
+  border-right: 2px solid #000000;
+  float: left;
+  text-align: center;
+  line-height: 40px;
+  padding-left: 5px;
+  font-weight: 600;
+  font-size: 16px;
+  position: relative;
 }
 </style>
