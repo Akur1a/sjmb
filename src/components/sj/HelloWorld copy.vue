@@ -48,6 +48,7 @@ export default {
       pageList: [460],
       pureTxt: '',
       tg: '',
+      QTBackup: {}
     }
   },
   components: {
@@ -88,6 +89,7 @@ export default {
         // 放不开
         // 拆分虚拟dom
         let domArr = creatDiv.children//虚拟dom所有子元素
+        console.log(domArr)
         // 循环放所有子元素
         for (let index = 0; index < domArr.length; index++) {
           // 获取每个子元素的高
@@ -114,10 +116,6 @@ export default {
             }
           } else {
             // 放不开
-            // 追加页面
-            this.showPage = false
-            this.pageList.push(700)
-            this.showPage = true
             // 判断是否为表格或图片
             let switcher = false
             if (domArr[index].children) {
@@ -128,7 +126,11 @@ export default {
               }
             }
             if (switcher || domArr[index].tagName == 'TABLE') {
-              // 放入表格或图片              
+              // 放入表格或图片       
+              // 追加页面
+              this.showPage = false
+              this.pageList.push(700)
+              this.showPage = true
               this.$nextTick(() => {
                 let domTxt1 = "<div style='width:500px;margin:0 auto'>" + domArr[index].outerHTML + '</div>'
                 this.$refs.page[this.pageList.length - 1].innerHTML += domTxt1
@@ -137,7 +139,12 @@ export default {
             } else {
               // 切分dom
               let num = creatDiv1.innerText.length - 1
-              this.inputFn1(creatDiv1.innerText, creatDiv1.innerHTML, num)
+              this.QTBackup = {
+                'pureTxt': creatDiv1.innerText,
+                'txt': creatDiv1.innerHTML,
+                'num': num
+              }
+              this.inputFn1(creatDiv1.innerHTML, creatDiv1.innerText, num)
             }
           }
         }
@@ -154,15 +161,20 @@ export default {
       creatDiv.style.display = "none";
       let domTxt = "<div style='width:500px;margin:0 auto'>" + txt + '</div>'
       if (eachXtHeight < this.pageList[this.pageList.length - 1]) {
-        this.$nextTick(() => {
+        if (this.$refs.page[this.pageList.length - 1]) {
           this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
           this.pageList[this.pageList.length - 1] -= eachXtHeight
-        })
+        } else {
+          this.$nextTick(() => {
+            this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
+            this.pageList[this.pageList.length - 1] -= eachXtHeight
+          })
+        }
         if (nextTxt) {
           this.showPage = false
           this.pageList.push(700)
           this.showPage = true
-          let newPage = this.cutOutWidthBq(pureTxt, txt, num + 1)[1]
+          let newPage = this.cutOutWidthBq(this.QTBackup.pureTxt, this.QTBackup.txt, num + 1)[1]
           let domTxt1 = "<div style='width:500px;margin:0 auto'>" + newPage + '</div>'
           let creatDiv1 = document.createElement("div");
           creatDiv1.style.width = "500px";
@@ -172,6 +184,11 @@ export default {
           let count1 = creatDiv1.innerText.length
           let newTXT = creatDiv1.innerText
           creatDiv1.style.display = "none";
+          this.QTBackup = {
+            'pureTxt': newPage,
+            'txt': newTXT,
+            'num': count1
+          }
           this.inputFn1(newPage, newTXT, count1)
         }
       } else {
@@ -180,7 +197,7 @@ export default {
         let creatDiv2 = document.createElement("div");
         creatDiv2.innerHTML = arr[0];
         let creatDiv2Txt = creatDiv2.innerText
-        this.inputFn1(arr[0], creatDiv2Txt, num, arr[1])
+        this.inputFn1(arr[0], creatDiv2Txt, num, true)
       }
     },
     //-------------------------------------------------------------------------------------------------

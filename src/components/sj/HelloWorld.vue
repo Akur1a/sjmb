@@ -78,157 +78,29 @@
       </div>
       <!-- 中间预览视图 -->
       <div class="mainPreview">
-        <div v-for="(item,index) in pageList"
-             :key="index"
-             class="pages"
-             ref="page">
-          <!--空白头-->
-          <div style="height: 80px"></div>
-          <!--装订线-->
-          <div class="dashedLine">
-            <div style="line-height: 32px; margin-bottom: 10px;border: 1px solid #000">
-              <span style="width: 150px;display: inline-block;margin-left:230px">学号：</span>
-              <span style="width: 150px;display: inline-block">姓名：</span>
-              <span style="width: 150px;display: inline-block">学院：</span>
-              <span style="width: 150px;display: inline-block">班级：</span>
-            </div>
-            <div style="border-bottom: 1px dotted #000000;padding-bottom: 20px">
-              <div style="position:absolute;left: 25%;top: 56px;">线</div>
-              <div style="position:absolute;left: 50%;top: 56px;">订</div>
-              <div style="position:absolute;left: 75%;top: 56px;">装</div>
-            </div>
-          </div>
-          <!--卷头-->
-          <div id="new-upload-header"
-               style="margin-left: 125px"
-               v-if="index==0">
-            <div id="header-title"
-                 style="margin-left: -22px;">南宁学院{{titleInfo.xymc}}考试(查)试卷</div>
-            <div style="height: 32px"></div>
-            <div class="header-content1"
-                 style="margin:0 auto">
-              <div class="header-content-item">
-                <div class="header-content-item-right">《<span style="min-width:515px;text-align:center;display:inline-block">{{titleInfo.kcmc}}</span>》课程 </div>
-              </div>
-              <div class="noWidth">
-                <div style="margin-right: 5px;float: left;line-height: 35px"
-                     v-for="(itemA,indexA) in titleInfo.sjTypeList"
-                     :key="indexA">
-                  <div v-if="titleInfo.sjxx==itemA.value">
-                    <span>{{itemA.mc}}</span>
-                  </div>
-                </div>
-                <div style="clear:both"></div>
-              </div>
-              <div style="clear:both"></div>
-            </div>
-            <div style="clear: both"></div>
-            <div class="headTable">
-              <div class="headTableRow">
-                <div class="headTableCol1"
-                     ref="njzy"
-                     style="width:80px">年级专业</div>
-                <div class="headTableCol1"
-                     ref="njzyRes"
-                     style="width:300px">{{titleInfo.grade}}</div>
-                <div class="headTableCol1"
-                     ref="mtjs"
-                     style="width:80px">命题教师</div>
-                <div class="headTableCol1"
-                     ref="mtjsRes"
-                     style="border-right:none;width:164px">{{titleInfo.mtjs}}</div>
-                <div style="clear:both"></div>
-              </div>
-              <div class="headTableRow"
-                   style="border-bottom:none">
-
-                <div class="headTableCol1"
-                     style="width:80px">考试形式</div>
-                <div class="headTableCol1"
-                     style="width:300px">
-                  <span v-if="titleInfo.ksfs==='2'">闭卷</span>
-                  <span v-if="titleInfo.ksfs==='1'">开卷</span>
-                </div>
-                <div class="headTableCol1"
-                     style="width:80px">考核时长</div>
-                <div class="headTableCol1"
-                     style="border-right:none;width:164px"><span style="text-decoration: underline">&nbsp;&nbsp;{{titleInfo.kssc}}&nbsp;&nbsp;</span>分钟</div>
-                <div style="clear:both"></div>
-              </div>
-            </div>
-            <div style="clear: both"></div>
-            <div class="header-table">
-              <div class="header-table-col"
-                   style="width: 83px;border-left: 2px solid #000000">
-                <div class="header-table-th">
-                  题号
-                </div>
-                <div class="header-table-tb">
-                  得分
-                </div>
-              </div>
-              <div v-if="treeData.length">
-                <div class="header-table-col"
-                     :style="{width:(465/(treeData.length))+'px',}"
-                     v-for="(itemB,indexB) in treeData"
-                     :key="indexB">
-                  <div class="header-table-th">
-                    {{itemB.th}}
-                  </div>
-                  <div class="header-table-tb"></div>
-                </div>
-              </div>
-              <div v-else>
-                <div class="header-table-col"
-                     style="width:465px">
-                  <div class="header-table-th"> </div>
-                  <div class="header-table-tb"> </div>
-                </div>
-              </div>
-              <div class="header-table-col"
-                   style="width: 82px">
-                <div class="header-table-th">
-                  总分
-                </div>
-                <div class="header-table-tb">
-                </div>
-              </div>
-            </div>
-            <div class="header-table"
-                 style="margin-top:0;border-top:none">
-              <div class="header-table-col"
-                   style="width: 83px;border-left: 2px solid #000000">
-                <div class="header-table-tb">
-                  阅卷人
-                </div>
-              </div>
-              <div class="header-table-col"
-                   style="width: 282px;">
-                <div class="header-table-tb"> </div>
-              </div>
-              <div class="header-table-col"
-                   style="width: 83px;">
-                <div class="header-table-tb">
-                  统分人
-                </div>
-              </div>
-              <div class="header-table-col"
-                   style="width: 182px">
-                <div class="header-table-tb"> </div>
-              </div>
-            </div>
-          </div>
-
+        <div v-if="showPage">
+          <A4Single :titleInfo='titleInfo'
+                    :treeData='treeData'></A4Single>
         </div>
       </div>
       <!-- 右侧添加试题部分 -->
       <div class="questionTree">
         <div class="settingItem">
           <p class="settingTitle">添加大题</p>
-          <ul class="addDT">
+          <p v-if="treeData.length>=15"
+             style="color:red">最多添加15道大题，请删除原有大题后继续添加。</p>
+          <ul class="addDT"
+              v-if="treeData.length<15">
             <li v-for="(item,index) in typeList"
+                class="AddLi"
                 :key="index"
                 @click="showAddDT(item)">{{item.label}}</li>
+          </ul>
+          <ul class="addDT"
+              v-else>
+            <li v-for="(item,index) in typeList"
+                :key="index"
+                class="AddLiNotAllow">{{item.label}}</li>
           </ul>
           <div style="clear:both"></div>
         </div>
@@ -375,6 +247,7 @@
 <script>
 import addNew from "./addNew";
 import bus from "../../common/reLoadBus";
+import A4Single from './components/A4Single'
 
 export default {
   data () {
@@ -423,7 +296,6 @@ export default {
           value: "English_reading"
         }
       ],//题型数组
-      pageList: [1, 2],//试卷list
       treeData: [],//题目list
       showTJDT: false,//添加大题弹窗
       editDTIndex: -1,//编辑大题坐标
@@ -485,25 +357,16 @@ export default {
       XTValue: {},//添加/编辑小题信息
       parentIndex: '',//添加编辑小题时对应大题的index
       childIndex: '',//编辑小题时小题的index
-      xtth: ''//编辑小题时保存的小题题号
+      xtth: '',//编辑小题时保存的小题题号
+      showPage: true,//显示中间试卷主页面开关
     }
   },
   components: {
-    addNew
+    addNew, A4Single
   },
   mounted () {
-    this.setCSS()
   },
   methods: {
-    setCSS () {
-      // 年级专业显示超出一行时重新设置改行css
-      this.$refs.njzy[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
-      this.$refs.njzy[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
-      this.$refs.mtjs[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
-      this.$refs.mtjs[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
-      this.$refs.mtjsRes[0].style.height = this.$refs.njzyRes[0].clientHeight + 'px'
-      this.$refs.mtjsRes[0].style.lineHeight = this.$refs.njzyRes[0].clientHeight + 'px'
-    },
     changePaperSize (val) {
       // 切换打印尺寸
       this.paperSize = val
@@ -772,7 +635,6 @@ export default {
       this.showAddXT = false
     },
     saveEditTest (data) {
-      console.log(data)
       this.$set(data, "title", '第' + this.xtth + '小题');
       this.$set(data, "th", this.xtth);
       this.$set(data, "expand", true);
@@ -801,8 +663,10 @@ export default {
   },
   watch: {
     showTJDT () {
-      // watch添加大题弹窗 关闭后清空相关数据
+      // watch添加大题弹窗 关闭后清空相关数据并重新渲染页面
       if (!this.showTJDT) {
+        this.showPage = false
+        this.showPage = true
         this.editDTIndex = -1
         this.addDTInfo = {
           label: '',
@@ -813,20 +677,26 @@ export default {
       }
     },
     confirmDel () {
-      // watch确认删除弹窗 关闭后清空相关数据
+      // watch确认删除弹窗 关闭后清空相关数据并重新渲染页面
       if (!this.confirmDel) {
+        this.showPage = false
+        this.showPage = true
         this.delInfo = {}
       }
     },
     showKSXX () {
-      // watch修改考试信息弹窗 关闭后清空考试信息备份
+      // watch修改考试信息弹窗 关闭后清空考试信息备份并重新渲染页面
       if (!this.showKSXX) {
+        this.showPage = false
+        this.showPage = true
         this.ksxxBackup = {}
       }
     },
     showAddXT () {
-      // watch添加修改小题弹窗 关闭后清空相关数据
+      // watch添加修改小题弹窗 关闭后清空相关数据并重新渲染页面
       if (!this.showAddXT) {
+        this.showPage = false
+        this.showPage = true
         this.xtth = ''
         this.addXTType = ''
         this.XTValue = {}
@@ -906,7 +776,7 @@ export default {
 .addDT {
   margin-top: 5px;
 }
-.addDT li {
+.addDT .AddLi {
   float: left;
   padding: 0 10px;
   height: 26px;
@@ -917,9 +787,21 @@ export default {
   margin: 5px 5px;
   cursor: pointer;
 }
-.addDT li:hover {
+.addDT .AddLi:hover {
   border: 1px solid #007ae1;
   color: #007ae1;
+}
+.addDT .AddLiNotAllow {
+  float: left;
+  padding: 0 10px;
+  height: 26px;
+  border: 1px solid #ccc;
+  color: #ccc;
+  border-radius: 4px;
+  line-height: 26px;
+  text-align: center;
+  margin: 5px 5px;
+  cursor: not-allowed;
 }
 .btns {
   width: 100px;
@@ -945,13 +827,6 @@ export default {
   overflow-x: hidden;
   overflow-y: auto;
   background: #999;
-}
-.mainPreview .pages {
-  width: 786px;
-  height: 1122px;
-  background: white;
-  margin: 20px auto;
-  position: relative;
 }
 .questionTree {
   width: 400px;
@@ -983,128 +858,6 @@ export default {
 }
 .bigBox >>> textarea {
   resize: none;
-}
-/* 试卷部分css */
-.dashedLine {
-  height: 70px;
-  width: 957.66px;
-  background-color: #ffffff;
-  font-size: 14px;
-  font-family: SimSun, '新罗马', 'Times New Roman', '宋体', SimSun-ExtB, NSimSun,
-    serif, 'STSong';
-  position: absolute;
-  z-index: 2;
-  -moz-transform: rotate(-90deg);
-  -webkit-transform: rotate(-90deg);
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
-  top: 530px;
-  right: 240px;
-}
-
-.new-upload1 #new-upload-header {
-  width: 630px;
-  background: rgba(255, 255, 255, 1);
-}
-
-#new-upload-header #header-title {
-  width: 100%;
-  text-align: center;
-  font-size: 26px;
-  font-weight: 800;
-  color: rgba(34, 34, 34, 1);
-  line-height: 26px;
-  overflow: hidden;
-}
-
-#new-upload-header .header-content1 {
-  width: auto;
-  margin-bottom: 15px;
-}
-
-#new-upload-header .header-content1 .header-content-item {
-  float: left;
-  margin-right: 20px;
-  /* height: 35px; */
-  line-height: 35px;
-  font-size: 16px;
-  color: rgba(33, 37, 41, 1);
-  font-weight: 600;
-}
-
-#new-upload-header
-  .header-content1
-  .header-content-item
-  .header-content-item-right {
-  float: left;
-}
-
-#new-upload-header .header-table,
-.content-xzt-datxl .header-table {
-  margin-top: 20px;
-  width: 630px;
-  border-top: 2px solid #000000;
-  font-size: 16px;
-  font-weight: normal;
-  color: rgba(34, 34, 34, 1);
-  overflow: hidden;
-}
-
-#new-upload-header .header-table .no-data-col,
-.content-xzt-datxl .no-data-col {
-  float: left;
-  width: 547px;
-  height: 180px;
-  text-align: center;
-  line-height: 180px;
-  border-right: 2px solid #000000;
-  border-bottom: 2px solid #000000;
-}
-
-#new-upload-header .header-table .header-table-col,
-.content-xzt-datxl .header-table-col {
-  float: left;
-}
-
-#new-upload-header .header-table .header-table-th,
-.content-xzt-datxl .header-table-th {
-  text-align: center;
-  height: 40px;
-  line-height: 40px;
-  padding-left: 5px;
-  border-right: 2px solid #000000;
-  border-bottom: 2px solid #000000;
-  font-weight: 600;
-}
-
-#new-upload-header .header-table .header-table-tb,
-.content-xzt-datxl .header-table-tb {
-  text-align: center;
-  height: 40px;
-  line-height: 40px;
-  padding-left: 5px;
-  border-right: 2px solid #000000;
-  border-bottom: 2px solid #000000;
-  word-wrap: break-word;
-  font-weight: 600;
-}
-.headTable {
-  width: 630px;
-  border: 2px solid #000000;
-  margin-top: 20px;
-}
-.headTableRow {
-  border-bottom: 2px solid #000000;
-}
-.headTableCol1 {
-  min-height: 40px;
-  border-right: 2px solid #000000;
-  float: left;
-  text-align: center;
-  line-height: 40px;
-  padding-left: 5px;
-  font-weight: 600;
-  font-size: 16px;
-  position: relative;
 }
 </style>
 <style lang="less" scoped>
