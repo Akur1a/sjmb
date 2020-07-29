@@ -127,7 +127,8 @@
             <span style="width:80px;text-align:right;display:inline-block;margin-right:10px;">单题分数:</span>
             <InputNumber :min="0"
                          v-model="addDTInfo.fz"
-                         :precision='1'
+                         @on-blur="fsChange"
+                         placeholder='最多支持小数点后一位'
                          style="width:200px;"></InputNumber>
           </p>
           <p style="font-size:14px;margin:25px 40px">
@@ -302,7 +303,7 @@ export default {
       addDTInfo: {
         label: '',
         value: '',
-        fz: 0.0,
+        fz: null,
         sm: ''
       },//编辑新增大题信息
       confirmDel: false,//确认删除弹窗
@@ -367,6 +368,11 @@ export default {
   mounted () {
   },
   methods: {
+    fsChange () { // 该方法在input内容改变是就会触发进行检测
+      if (this.addDTInfo.fz) {
+        this.addDTInfo.fz = this.addDTInfo.fz.toFixed(1) * 1
+      }
+    },
     changePaperSize (val) {
       // 切换打印尺寸
       this.paperSize = val

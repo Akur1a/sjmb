@@ -194,8 +194,15 @@ export default {
       creatDiv.style.display = "none";
       this.$el.removeChild(creatDiv)
       if (this.pageList[this.pageList.length - 1].height >= domHeight1 - 27) {
-        this.$refs.page[this.pageList.length - 1].innerHTML += txt2;
-        this.pageList[this.pageList.length - 1].height -= domHeight1 - 27
+        if (this.$refs.page[this.pageList.length - 1]) {
+          this.$refs.page[this.pageList.length - 1].innerHTML += txt2;
+          this.pageList[this.pageList.length - 1].height -= domHeight1 - 27
+        } else {
+          this.$nextTick(() => {
+            this.$refs.page[this.pageList.length - 1].innerHTML += txt2;
+            this.pageList[this.pageList.length - 1].height -= domHeight1 - 27
+          })
+        }
         if (nextTxt) {
           this.pageList.push({
             width: 630,
@@ -203,9 +210,9 @@ export default {
             showDashedLine: true,
           })
           let newPage = this.cutOutWidthBq(this.QTBackup.pureTxt, this.QTBackup.txt, num + 1)[1]
-          let domTxt1 = "<div style='width:500px;margin:0 auto'>" + newPage + '</div>'
+          let domTxt1 = "<div style='width:630px;margin:0 auto'>" + newPage + '</div>'
           let creatDiv1 = document.createElement("div");
-          creatDiv1.style.width = "500px";
+          creatDiv1.style.width = "630px";
           creatDiv1.style.margin = "0 auto";
           creatDiv1.innerHTML = newPage;
           this.$el.append(creatDiv1);
@@ -224,6 +231,189 @@ export default {
         creatDiv2.innerHTML = arr[0];
         let creatDiv2Txt = creatDiv2.innerText
         this.putDTSM(creatDiv2Txt, num, true)
+      }
+    },
+    inputFn (htmlTxt, pureTxt) {
+      // htmlTxt 富文本
+      //  pureTxt 纯文本 
+
+      //生成虚拟dom,获取富文本高度
+      let creatDiv = document.createElement("div");
+      creatDiv.style.width = "630px";
+      creatDiv.style.margin = "0 auto";
+      creatDiv.style.fontSize = "18px";
+      creatDiv.innerHTML = htmlTxt;
+      this.$el.append(creatDiv);
+      let domHeight = creatDiv.clientHeight;//DOM的高度
+      creatDiv.style.display = "none";
+      this.$el.removeChild(creatDiv)
+      // console.log(domHeight, this.pageList[this.pageList.length - 1].height)
+      // 比较高度和剩余高度
+      if (domHeight < this.pageList[this.pageList.length - 1].height) {
+        // 放得开
+        let domTxt = "<div style='width:630px;margin:0 auto;font-size:18px'>" + htmlTxt + '</div>'
+        if (this.$refs.page[this.pageList.length - 1]) {
+          this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
+          this.pageList[this.pageList.length - 1].height -= domHeight
+        } else {
+          this.$nextTick(() => {
+            this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
+            this.pageList[this.pageList.length - 1].height -= domHeight
+          })
+        }
+        // this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
+        // this.pageList[this.pageList.length - 1].height -= domHeight
+      } else {
+        // 放不开
+        // 拆分虚拟dom
+        let domArr = creatDiv.children//虚拟dom所有子元素
+        // 循环放所有子元素
+        for (let index = 0; index < domArr.length; index++) {
+          // 获取每个子元素的高
+          let creatDiv1 = document.createElement("div");
+          creatDiv1.style.width = "630px";
+          creatDiv1.style.margin = "0 auto";
+          creatDiv1.style.fontSize = "18px";
+          creatDiv1.innerHTML = domArr[index].outerHTML;
+          this.$el.append(creatDiv1);
+          let listItemHeight = creatDiv1.clientHeight //子元素的dom高
+          creatDiv1.style.display = "none";
+          this.$el.removeChild(creatDiv1);
+          // 比较每个子元素和剩余高度
+          if (listItemHeight < this.pageList[this.pageList.length - 1].height) {
+            // 放得开
+            let domTxt1 = "<div style='width:630px;margin:0 auto;font-size:18px'>" + domArr[index].outerHTML + '</div>'
+            if (this.$refs.page[this.pageList.length - 1]) {
+              this.$refs.page[this.pageList.length - 1].innerHTML += domTxt1
+              this.pageList[this.pageList.length - 1].height -= listItemHeight
+            } else {
+              this.$nextTick(() => {
+                this.$refs.page[this.pageList.length - 1].innerHTML += domTxt1
+                this.pageList[this.pageList.length - 1].height -= listItemHeight
+              })
+            }
+          } else {
+            // 放不开
+            // 判断是否为表格或图片
+            let switcher = false
+            if (domArr[index].children) {
+              for (let ii = 0; ii < domArr[index].children.length; ii++) {
+                if (domArr[index].children[ii].tagName == 'IMG') {
+                  switcher = true
+                }
+              }
+            }
+            if (switcher || domArr[index].tagName == 'TABLE') {
+              // 放入表格或图片       
+              // 追加页面
+              this.showPage = false
+              this.pageList.push({
+                width: 630,
+                height: 958,
+                showDashedLine: true,
+              })
+              this.showPage = true
+              this.$nextTick(() => {
+                let domTxt1 = "<div style='width:630px;margin:0 auto;font-size:18px'>" + domArr[index].outerHTML + '</div>'
+                this.$refs.page[this.pageList.length - 1].innerHTML += domTxt1
+                this.pageList[this.pageList.length - 1].height -= listItemHeight
+              })
+            } else {
+              // 切分dom
+              let num = creatDiv1.innerText.length - 1
+              this.QTBackup = {
+                'pureTxt': creatDiv1.innerText,
+                'txt': creatDiv1.innerHTML,
+                'num': num
+              }
+              this.inputFn1(creatDiv1.innerHTML, creatDiv1.innerText, num)
+            }
+          }
+        }
+      }
+    },
+    inputFn1 (txt, pureTxt, count, nextTxt) {
+      let num = count
+      let creatDiv = document.createElement("div");
+      creatDiv.style.width = "630px";
+      creatDiv.style.margin = "0 auto";
+      creatDiv.style.fontSize = "18px";
+      creatDiv.innerHTML = txt;
+      this.$el.append(creatDiv);
+      let eachXtHeight = creatDiv.clientHeight;//DOM的高度
+      creatDiv.style.display = "none";
+      let domTxt = "<div style='width:630px;margin:0 auto;font-size:18px'>" + txt + '</div>'
+      if (eachXtHeight < this.pageList[this.pageList.length - 1].height) {
+        if (this.$refs.page[this.pageList.length - 1]) {
+          this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
+          this.pageList[this.pageList.length - 1].height -= eachXtHeight
+        } else {
+          this.$nextTick(() => {
+            this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
+            this.pageList[this.pageList.length - 1].height -= eachXtHeight
+          })
+        }
+        if (nextTxt) {
+          this.showPage = false
+          this.pageList.push({
+            width: 630,
+            height: 958,
+            showDashedLine: true,
+          })
+          this.showPage = true
+          let newPage = this.cutOutWidthBq(this.QTBackup.pureTxt, this.QTBackup.txt, num + 1)[1]
+          let domTxt1 = "<div style='width:630px;margin:0 auto;font-size:18px'>" + newPage + '</div>'
+          let creatDiv1 = document.createElement("div");
+          creatDiv1.style.width = "630px";
+          creatDiv1.style.margin = "0 auto";
+          creatDiv1.style.fontSize = "18px";
+          creatDiv1.innerHTML = newPage;
+          this.$el.append(creatDiv1);
+          let count1 = creatDiv1.innerText.length
+          let newTXT = creatDiv1.innerText
+          creatDiv1.style.display = "none";
+          this.QTBackup = {
+            'pureTxt': newPage,
+            'txt': newTXT,
+            'num': count1
+          }
+          this.inputFn1(newPage, newTXT, count1)
+        }
+      } else {
+        let arr = this.cutOutWidthBq(pureTxt, txt, num)
+        num--
+        let creatDiv2 = document.createElement("div");
+        creatDiv2.innerHTML = arr[0];
+        let creatDiv2Txt = creatDiv2.innerText
+        this.inputFn1(arr[0], creatDiv2Txt, num, true)
+      }
+    },
+    inputLine (count, max, flag) {
+      if (this.pageList[this.pageList.length - 1].height < 27) {
+        this.pageList.push({
+          width: 630,
+          height: 958,
+          showDashedLine: true,
+        })
+      }
+      if (this.$refs.page[this.pageList.length - 1]) {
+        console.log(flag == '十' ? 'a' : '1')
+        this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
+        this.pageList[this.pageList.length - 1].height -= 27
+        if (count < max) {
+          count++
+          this.inputLine(count, max)
+        }
+      } else {
+        this.$nextTick(() => {
+          this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
+          this.pageList[this.pageList.length - 1].height -= 27
+          console.log(flag == '十' ? this.pageList[this.pageList.length - 1].height : '2')
+          if (count < max) {
+            count++
+            this.inputLine(count, max)
+          }
+        })
       }
     },
     // -----------------------utils-------------------------------------
@@ -417,8 +607,6 @@ export default {
                 this.$refs.page[this.pageList.length - 1].innerHTML += DThtml
               })
             }
-            // this.$refs.page[this.pageList.length - 1].innerHTML += DThtml
-            console.log(this.pageList[this.pageList.length - 1].height)
             // 更新剩余高度
             let creatDiv = document.createElement("div");
             creatDiv.innerHTML = DThtml;
@@ -435,8 +623,75 @@ export default {
                 txt: `<p style="width:630px;font-weight: 300;font-size:18px">${newValue[index].sm}</p>`
               }
               this.putDTSM(newValue[index].sm, newValue[index].sm.length - 1)
-            } else {
-              // this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='clear:both'></div>`
+            }
+
+            // 处理小题
+            for (let i = 0; i < newValue[index].children.length; i++) {
+              let tgHtml = ''
+              let tgTXt = ''
+              let arr = newValue[index].children[i].xttg.split('>')
+              arr.splice(1, 0, `<span>${newValue[index].children[i].th}.<span`)
+              tgHtml = arr.join('>')
+              if (newValue[index].children[i].stlx == "composition") {
+                let arr1 = tgHtml.split('<')
+                arr1.splice(arr1.length - 1, 0, `span style='font-size:16px'>(${newValue[index].children[i].xtxq.zwNumber}字)<span>`)
+                tgHtml = arr1.join('<')
+              }
+              tgTXt = newValue[index].children[i].th + '.' + newValue[index].children[i].xtxq.tgTxt
+              this.inputFn(tgHtml, tgTXt)
+              if (newValue[index].children[i].stlx == "composition" || newValue[index].children[i].stlx == "answer" || newValue[index].children[i].stlx == "shortAnswer" || newValue[index].children[i].stlx == "discussion") {
+                // let count = 0
+                // let timer = setInterval(() => {
+                //   if (this.pageList[this.pageList.length - 1].height < 27) {
+                //     this.pageList.push({
+                //       width: 630,
+                //       height: 958,
+                //       showDashedLine: true,
+                //     })
+                //   }
+                //   console.log(this.pageList[this.pageList.length - 1].height)
+                //   if (this.$refs.page && this.$refs.page[this.pageList.length - 1]) {
+                //     console.log(123)
+                //     this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
+                //     this.pageList[this.pageList.length - 1].height -= 27
+                //     count++
+                //   }
+                //   if (count >= newValue[index].children[i].xtxq.lineNumber) {
+                //     clearInterval(timer)
+                //     timer = null
+                //   }
+                // }, 100);
+                //----------------------------------------
+                let count = 0
+                this.inputLine(count, newValue[index].children[i].xtxq.lineNumber - 1, newValue[index].th)
+                //------------------------------------------
+                // for (let ii = 0; ii < newValue[index].children[i].xtxq.lineNumber; ii++) {
+                //   if (newValue[index].th == '十') {
+                //     console.log(this.pageList[this.pageList.length - 1].height < 27, 1)
+                //     console.log(this.pageList[this.pageList.length - 1].height, 2)
+                //     console.log(this.pageList.length - 1, 4)
+                //   }
+
+                //   if (this.pageList[this.pageList.length - 1].height < 27) {
+                //     this.pageList.push({
+                //       width: 630,
+                //       height: 958,
+                //       showDashedLine: true,
+                //     })
+                //   }
+                //   if (this.$refs.page[this.pageList.length - 1]) {
+                //     console.log('a')
+                //     this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
+                //     this.pageList[this.pageList.length - 1].height -= 27
+                //   } else {
+                //     this.$nextTick(() => {
+                //       this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
+                //       this.pageList[this.pageList.length - 1].height -= 27
+                //       console.log(this.pageList[this.pageList.length - 1].height)
+                //     })
+                //   }
+                // }
+              }
             }
           }
         })
