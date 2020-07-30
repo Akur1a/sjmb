@@ -161,7 +161,8 @@ export default {
         }
       ],//试卷list
       domList: [],//domList,
-      QTBackup: {}
+      QTBackup: {},
+      pageNo: 0
     }
   },
   props: {
@@ -193,14 +194,14 @@ export default {
       let domHeight1 = creatDiv.clientHeight;//DOM的高度
       creatDiv.style.display = "none";
       this.$el.removeChild(creatDiv)
-      if (this.pageList[this.pageList.length - 1].height >= domHeight1 - 27) {
-        if (this.$refs.page[this.pageList.length - 1]) {
-          this.$refs.page[this.pageList.length - 1].innerHTML += txt2;
-          this.pageList[this.pageList.length - 1].height -= domHeight1 - 27
+      if (this.pageList[this.pageNo].height >= domHeight1 - 27) {
+        if (this.$refs.page[this.pageNo]) {
+          this.$refs.page[this.pageNo].innerHTML += txt2;
+          this.pageList[this.pageNo].height -= domHeight1 - 27
         } else {
           this.$nextTick(() => {
-            this.$refs.page[this.pageList.length - 1].innerHTML += txt2;
-            this.pageList[this.pageList.length - 1].height -= domHeight1 - 27
+            this.$refs.page[this.pageNo].innerHTML += txt2;
+            this.pageList[this.pageNo].height -= domHeight1 - 27
           })
         }
         if (nextTxt) {
@@ -209,6 +210,7 @@ export default {
             height: 958,
             showDashedLine: true,
           })
+          this.pageNo++
           let newPage = this.cutOutWidthBq(this.QTBackup.pureTxt, this.QTBackup.txt, num + 1)[1]
           let domTxt1 = "<div style='width:630px;margin:0 auto'>" + newPage + '</div>'
           let creatDiv1 = document.createElement("div");
@@ -220,8 +222,8 @@ export default {
           creatDiv1.style.display = "none";
           this.$el.removeChild(creatDiv1)
           this.$nextTick(() => {
-            this.$refs.page[this.pageList.length - 1].innerHTML += newPage;
-            this.pageList[this.pageList.length - 1].height -= domHeight2
+            this.$refs.page[this.pageNo].innerHTML += newPage;
+            this.pageList[this.pageNo].height -= domHeight2
           })
         }
       } else {
@@ -247,22 +249,22 @@ export default {
       let domHeight = creatDiv.clientHeight;//DOM的高度
       creatDiv.style.display = "none";
       this.$el.removeChild(creatDiv)
-      // console.log(domHeight, this.pageList[this.pageList.length - 1].height)
+      // console.log(domHeight, this.pageList[this.pageNo].height)
       // 比较高度和剩余高度
-      if (domHeight < this.pageList[this.pageList.length - 1].height) {
+      if (domHeight < this.pageList[this.pageNo].height) {
         // 放得开
         let domTxt = "<div style='width:630px;margin:0 auto;font-size:18px'>" + htmlTxt + '</div>'
-        if (this.$refs.page[this.pageList.length - 1]) {
-          this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
-          this.pageList[this.pageList.length - 1].height -= domHeight
+        if (this.$refs.page[this.pageNo]) {
+          this.$refs.page[this.pageNo].innerHTML += domTxt
+          this.pageList[this.pageNo].height -= domHeight
         } else {
           this.$nextTick(() => {
-            this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
-            this.pageList[this.pageList.length - 1].height -= domHeight
+            this.$refs.page[this.pageNo].innerHTML += domTxt
+            this.pageList[this.pageNo].height -= domHeight
           })
         }
-        // this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
-        // this.pageList[this.pageList.length - 1].height -= domHeight
+        // this.$refs.page[this.pageNo].innerHTML += domTxt
+        // this.pageList[this.pageNo].height -= domHeight
       } else {
         // 放不开
         // 拆分虚拟dom
@@ -280,16 +282,16 @@ export default {
           creatDiv1.style.display = "none";
           this.$el.removeChild(creatDiv1);
           // 比较每个子元素和剩余高度
-          if (listItemHeight < this.pageList[this.pageList.length - 1].height) {
+          if (listItemHeight < this.pageList[this.pageNo].height) {
             // 放得开
             let domTxt1 = "<div style='width:630px;margin:0 auto;font-size:18px'>" + domArr[index].outerHTML + '</div>'
-            if (this.$refs.page[this.pageList.length - 1]) {
-              this.$refs.page[this.pageList.length - 1].innerHTML += domTxt1
-              this.pageList[this.pageList.length - 1].height -= listItemHeight
+            if (this.$refs.page[this.pageNo]) {
+              this.$refs.page[this.pageNo].innerHTML += domTxt1
+              this.pageList[this.pageNo].height -= listItemHeight
             } else {
               this.$nextTick(() => {
-                this.$refs.page[this.pageList.length - 1].innerHTML += domTxt1
-                this.pageList[this.pageList.length - 1].height -= listItemHeight
+                this.$refs.page[this.pageNo].innerHTML += domTxt1
+                this.pageList[this.pageNo].height -= listItemHeight
               })
             }
           } else {
@@ -312,11 +314,12 @@ export default {
                 height: 958,
                 showDashedLine: true,
               })
+              this.pageNo++
               this.showPage = true
               this.$nextTick(() => {
                 let domTxt1 = "<div style='width:630px;margin:0 auto;font-size:18px'>" + domArr[index].outerHTML + '</div>'
-                this.$refs.page[this.pageList.length - 1].innerHTML += domTxt1
-                this.pageList[this.pageList.length - 1].height -= listItemHeight
+                this.$refs.page[this.pageNo].innerHTML += domTxt1
+                this.pageList[this.pageNo].height -= listItemHeight
               })
             } else {
               // 切分dom
@@ -343,14 +346,14 @@ export default {
       let eachXtHeight = creatDiv.clientHeight;//DOM的高度
       creatDiv.style.display = "none";
       let domTxt = "<div style='width:630px;margin:0 auto;font-size:18px'>" + txt + '</div>'
-      if (eachXtHeight < this.pageList[this.pageList.length - 1].height) {
-        if (this.$refs.page[this.pageList.length - 1]) {
-          this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
-          this.pageList[this.pageList.length - 1].height -= eachXtHeight
+      if (eachXtHeight < this.pageList[this.pageNo].height) {
+        if (this.$refs.page[this.pageNo]) {
+          this.$refs.page[this.pageNo].innerHTML += domTxt
+          this.pageList[this.pageNo].height -= eachXtHeight
         } else {
           this.$nextTick(() => {
-            this.$refs.page[this.pageList.length - 1].innerHTML += domTxt
-            this.pageList[this.pageList.length - 1].height -= eachXtHeight
+            this.$refs.page[this.pageNo].innerHTML += domTxt
+            this.pageList[this.pageNo].height -= eachXtHeight
           })
         }
         if (nextTxt) {
@@ -360,6 +363,7 @@ export default {
             height: 958,
             showDashedLine: true,
           })
+          this.pageNo++
           this.showPage = true
           let newPage = this.cutOutWidthBq(this.QTBackup.pureTxt, this.QTBackup.txt, num + 1)[1]
           let domTxt1 = "<div style='width:630px;margin:0 auto;font-size:18px'>" + newPage + '</div>'
@@ -388,32 +392,196 @@ export default {
         this.inputFn1(arr[0], creatDiv2Txt, num, true)
       }
     },
-    inputLine (count, max, flag) {
-      if (this.pageList[this.pageList.length - 1].height < 27) {
+    async inputDT (count, max, obj) {
+      let index = count
+      // 先处理大题
+      // 剩余高度小于大题前的得分框添加新页面
+      if (this.pageList[this.pageNo].height < 56) {
         this.pageList.push({
           width: 630,
           height: 958,
           showDashedLine: true,
         })
+        this.pageNo++
       }
-      if (this.$refs.page[this.pageList.length - 1]) {
-        console.log(flag == '十' ? 'a' : '1')
-        this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
-        this.pageList[this.pageList.length - 1].height -= 27
+      // 向页面添加大题和得分框
+      let DThtml = `  <div style="border: 1px solid rgb(0, 0, 0); margin-right: 10px; width: 70px; float: left;">
+        <div style="text-align: center; border-bottom: 1px solid rgb(0, 0, 0); height: 24px;font-size:18px">
+            得分
+        </div>
+        <div style="height: 30px; margin-right: 10px;"></div>
+    </div>
+    <div class="content-exam-title-text">
+        <div style='font-weight: 700;font-size:18px'>
+            ${obj[index].th}、${obj[index].title}（本大题共 ${obj[index].children.length} 小题，每小题 ${obj[index].fz} 分，共 ${obj[index].children.length * obj[index].fz} 分)
+        </div>
+    </div>`
+      if (!obj[index].sm) {
+        DThtml += `<div style='clear:both'></div>`
+      }
+      if (this.$refs.page[this.pageNo]) {
+        this.$refs.page[this.pageNo].innerHTML += DThtml
+      } else {
+        this.$nextTick(() => {
+          this.$refs.page[this.pageNo].innerHTML += DThtml
+        })
+      }
+      // 更新剩余高度
+      let creatDiv = document.createElement("div");
+      creatDiv.innerHTML = DThtml;
+      this.$el.append(creatDiv);
+      let domHeight = 56;//DOM的高度
+      creatDiv.style.display = "none";
+      this.$el.removeChild(creatDiv)
+      this.pageList[this.pageNo].height -= domHeight
+      if (obj[index].sm) {
+        // 切分放置大题说明
+        this.QTBackup = {
+          pureTxt: obj[index].sm,
+          txt: `<p style="width:630px;font-weight: 300;font-size:18px">${obj[index].sm}</p>`
+        }
+        this.putDTSM(obj[index].sm, obj[index].sm.length - 1)
+      }
+
+      // 处理小题
+      let counts = 0
+      await this.inputXT(counts, obj[index].children.length, obj[index])
+      index++
+      if (index < max) {
+        this.inputDT(index, max, obj)
+      }
+    },
+    async inputXT (count, max, obj) {
+      let i = count
+      let tgHtml = ''
+      let tgTXt = ''
+      let arr = obj.children[i].xttg.split('>')
+      arr.splice(1, 0, `<span>${obj.children[i].th}.<span`)
+      tgHtml = arr.join('>')
+      if (obj.children[i].stlx == "composition") {
+        let arr1 = tgHtml.split('<')
+        arr1.splice(arr1.length - 1, 0, `span style='font-size:16px'>(${obj.children[i].xtxq.zwNumber}字)<span>`)
+        tgHtml = arr1.join('<')
+      }
+      tgTXt = obj.children[i].th + '.' + obj.children[i].xtxq.tgTxt
+      this.inputFn(tgHtml, tgTXt)
+      if (obj.children[i].stlx == "composition" || obj.children[i].stlx == "answer" || obj.children[i].stlx == "shortAnswer" || obj.children[i].stlx == "discussion") {
+        let count = 0
+        this.inputLine(count, obj.children[i].xtxq.lineNumber)
+      }
+      if (obj.children[i].stlx == "judge") {
+        let domArr = ["<span style='font-size:18px;margin:0 40px;display:inline-block'>A、正确</span><span style='font-size:18px;margin:0 40px;display:inline-block'>B、错误</span>"]
+        let count3 = 0
+        await this.inputXX(count3, domArr.length, domArr)
+      }
+      if (obj.children[i].stlx == "single_select" || obj.children[i].stlx == "multi_select") {
+        let XxArr = []
+        for (let ii = 0; ii < obj.children[i].xtxq.xzxx.length; ii++) {
+          let creatDiv = document.createElement('span')
+          creatDiv.style.fontSize = '18px'
+          creatDiv.style.margin = '0 40px'
+          creatDiv.innerHTML = String.fromCharCode(ii + 65) + '、' + obj.children[i].xtxq.xzxx[ii]
+          this.$el.append(creatDiv);
+          let domWidth = creatDiv.offsetWidth + 80;//DOM的宽度
+          creatDiv.style.display = "none";
+          this.$el.removeChild(creatDiv)
+          XxArr.push(domWidth)
+        }
+        let switcher2 = false
+        let switcher1 = XxArr.some((item) => {
+          return item >= 630 / 4
+        })
+        if (switcher1) {
+          switcher2 = XxArr.some((item) => {
+            return item >= 630 / 2
+          })
+        }
+        let domArr = []
+        let xxDom = ''
+        if (!switcher1) {
+          //一行四个
+          for (let iii = 0; iii < obj.children[i].xtxq.xzxx.length; iii++) {
+            xxDom += "<span style='font-size:18px;margin:0 40px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj.children[i].xtxq.xzxx[iii] + "</span>"
+            if ((iii + 1) % 4 == 0) {
+              domArr.push(xxDom)
+              xxDom = ''
+            }
+          }
+        } else if (switcher1 && !switcher2) {
+          //一行两个
+          for (let iii = 0; iii < obj.children[i].xtxq.xzxx.length; iii++) {
+            xxDom += "<span style='font-size:18px;margin:0 40px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj.children[i].xtxq.xzxx[iii] + "</span>"
+            if ((iii + 1) % 2 == 0) {
+              domArr.push(xxDom)
+              xxDom = ''
+            }
+          }
+        } else {
+          //一行一个
+          for (let iii = 0; iii < obj.children[i].xtxq.xzxx.length; iii++) {
+            xxDom += "<span style='font-size:18px;margin:0 40px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj.children[i].xtxq.xzxx[iii] + "</span>"
+            domArr.push(xxDom)
+            xxDom = ''
+          }
+        }
+        let count2 = 0
+        await this.inputXX(count2, domArr.length, domArr)
+      }
+      i++
+      if (i < max) {
+        this.inputXT(i, max, obj)
+      }
+    },
+    async inputLine (count, max) {
+      if (this.pageList[this.pageNo].height < 27) {
+        this.pageList.push({
+          width: 630,
+          height: 958,
+          showDashedLine: true,
+        })
+        this.pageNo++
+      }
+      if (this.$refs.page[this.pageNo]) {
+        this.$refs.page[this.pageNo].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
+        this.pageList[this.pageNo].height -= 27
+        count++
         if (count < max) {
-          count++
           this.inputLine(count, max)
         }
       } else {
         this.$nextTick(() => {
-          this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
-          this.pageList[this.pageList.length - 1].height -= 27
-          console.log(flag == '十' ? this.pageList[this.pageList.length - 1].height : '2')
+          this.$refs.page[this.pageNo].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
+          this.pageList[this.pageNo].height -= 27
+          count++
           if (count < max) {
-            count++
             this.inputLine(count, max)
           }
         })
+      }
+    },
+    async inputXX (count, max, obj) {
+      let i = count
+
+      if (this.pageList[this.pageNo].height < 27) {
+        this.pageList.push({
+          width: 630,
+          height: 958,
+          showDashedLine: true,
+        })
+        this.pageNo++
+      }
+      if (this.$refs.page[this.pageNo]) {
+        this.$refs.page[this.pageNo].innerHTML += "<div style='width:630px;margin:0 auto;font-size:18px'>" + obj[count] + '</div>'
+        this.pageList[this.pageNo].height -= 27
+      } else {
+        this.$nextTick(() => {
+          this.$refs.page[this.pageNo].innerHTML += "<div style='width:630px;margin:0 auto;font-size:18px'>" + obj[count] + '</div>'
+          this.pageList[this.pageNo].height -= 27
+        })
+      }
+      i++
+      if (i < max) {
+        this.inputXX(i, max, obj)
       }
     },
     // -----------------------utils-------------------------------------
@@ -570,130 +738,17 @@ export default {
           height: 617,
           showDashedLine: true,
         }]
-        // console.log(newValue)
+        this.pageNo = 0
         this.$nextTick(() => {
           // 清空试题区域
-          this.$refs.page[this.pageList.length - 1].innerHTML = ''
+          this.$refs.page[this.pageNo].innerHTML = ''
           // 循环treeData 渲染页面
-          for (let index = 0; index < newValue.length; index++) {
-            // 先处理大题
-            // 剩余高度小于大题前的得分框添加新页面
-            if (this.pageList[this.pageList.length - 1].height < 56) {
-              this.pageList.push({
-                width: 630,
-                height: 958,
-                showDashedLine: true,
-              })
-            }
-            // 向页面添加大题和得分框
-            let DThtml = `  <div style="border: 1px solid rgb(0, 0, 0); margin-right: 10px; width: 70px; float: left;">
-        <div style="text-align: center; border-bottom: 1px solid rgb(0, 0, 0); height: 24px;font-size:18px">
-            得分
-        </div>
-        <div style="height: 30px; margin-right: 10px;"></div>
-    </div>
-    <div class="content-exam-title-text">
-        <div style='font-weight: 700;font-size:18px'>
-            ${newValue[index].th}、${newValue[index].title}（本大题共 ${newValue[index].children.length} 小题，每小题 ${newValue[index].fz} 分，共 ${newValue[index].children.length * newValue[index].fz} 分)
-        </div>
-    </div>`
-            if (!newValue[index].sm) {
-              DThtml += `<div style='clear:both'></div>`
-            }
-            if (this.$refs.page[this.pageList.length - 1]) {
-              this.$refs.page[this.pageList.length - 1].innerHTML += DThtml
-            } else {
-              this.$nextTick(() => {
-                this.$refs.page[this.pageList.length - 1].innerHTML += DThtml
-              })
-            }
-            // 更新剩余高度
-            let creatDiv = document.createElement("div");
-            creatDiv.innerHTML = DThtml;
-            this.$el.append(creatDiv);
-            // let domHeight = creatDiv.clientHeight;//DOM的高度
-            let domHeight = 56;//DOM的高度
-            creatDiv.style.display = "none";
-            this.$el.removeChild(creatDiv)
-            this.pageList[this.pageList.length - 1].height -= domHeight
-            if (newValue[index].sm) {
-              // 切分放置大题说明
-              this.QTBackup = {
-                pureTxt: newValue[index].sm,
-                txt: `<p style="width:630px;font-weight: 300;font-size:18px">${newValue[index].sm}</p>`
-              }
-              this.putDTSM(newValue[index].sm, newValue[index].sm.length - 1)
-            }
+          let counts = 0
+          this.inputDT(counts, newValue.length, newValue)
+          // console.log(1)
+          // for (let index = 0; index < newValue.length; index++) {
 
-            // 处理小题
-            for (let i = 0; i < newValue[index].children.length; i++) {
-              let tgHtml = ''
-              let tgTXt = ''
-              let arr = newValue[index].children[i].xttg.split('>')
-              arr.splice(1, 0, `<span>${newValue[index].children[i].th}.<span`)
-              tgHtml = arr.join('>')
-              if (newValue[index].children[i].stlx == "composition") {
-                let arr1 = tgHtml.split('<')
-                arr1.splice(arr1.length - 1, 0, `span style='font-size:16px'>(${newValue[index].children[i].xtxq.zwNumber}字)<span>`)
-                tgHtml = arr1.join('<')
-              }
-              tgTXt = newValue[index].children[i].th + '.' + newValue[index].children[i].xtxq.tgTxt
-              this.inputFn(tgHtml, tgTXt)
-              if (newValue[index].children[i].stlx == "composition" || newValue[index].children[i].stlx == "answer" || newValue[index].children[i].stlx == "shortAnswer" || newValue[index].children[i].stlx == "discussion") {
-                // let count = 0
-                // let timer = setInterval(() => {
-                //   if (this.pageList[this.pageList.length - 1].height < 27) {
-                //     this.pageList.push({
-                //       width: 630,
-                //       height: 958,
-                //       showDashedLine: true,
-                //     })
-                //   }
-                //   console.log(this.pageList[this.pageList.length - 1].height)
-                //   if (this.$refs.page && this.$refs.page[this.pageList.length - 1]) {
-                //     console.log(123)
-                //     this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
-                //     this.pageList[this.pageList.length - 1].height -= 27
-                //     count++
-                //   }
-                //   if (count >= newValue[index].children[i].xtxq.lineNumber) {
-                //     clearInterval(timer)
-                //     timer = null
-                //   }
-                // }, 100);
-                //----------------------------------------
-                let count = 0
-                this.inputLine(count, newValue[index].children[i].xtxq.lineNumber - 1, newValue[index].th)
-                //------------------------------------------
-                // for (let ii = 0; ii < newValue[index].children[i].xtxq.lineNumber; ii++) {
-                //   if (newValue[index].th == '十') {
-                //     console.log(this.pageList[this.pageList.length - 1].height < 27, 1)
-                //     console.log(this.pageList[this.pageList.length - 1].height, 2)
-                //     console.log(this.pageList.length - 1, 4)
-                //   }
-
-                //   if (this.pageList[this.pageList.length - 1].height < 27) {
-                //     this.pageList.push({
-                //       width: 630,
-                //       height: 958,
-                //       showDashedLine: true,
-                //     })
-                //   }
-                //   if (this.$refs.page[this.pageList.length - 1]) {
-                //     console.log('a')
-                //     this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
-                //     this.pageList[this.pageList.length - 1].height -= 27
-                //   } else {
-                //     this.$nextTick(() => {
-                //       this.$refs.page[this.pageList.length - 1].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:27px'></div>`
-                //       this.pageList[this.pageList.length - 1].height -= 27
-                //       console.log(this.pageList[this.pageList.length - 1].height)
-                //     })
-                //   }
-                // }
-              }
-            }
-          }
+          // }
         })
       },
       deep: true,
