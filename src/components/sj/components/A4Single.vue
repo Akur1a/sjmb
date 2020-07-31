@@ -140,7 +140,7 @@
         </div>
       </div>
       <!-- 试题 -->
-      <div style="width:630px;border:1px solid red;margin-left:125px;margin-top:5px"
+      <div style="width:630px;margin-left:125px;margin-top:5px"
            :style="{height:index==0?'617px':'958px'}"
            ref="page"
            class="STArea"></div>
@@ -405,17 +405,17 @@ export default {
         this.pageNo++
       }
       // 向页面添加大题和得分框
-      let DThtml = `  <div style="border: 1px solid rgb(0, 0, 0); margin-right: 10px; width: 70px; float: left;">
+      let DThtml = `<div style="border: 1px solid rgb(0, 0, 0); margin-right: 10px; width: 70px; float: left;">
         <div style="text-align: center; border-bottom: 1px solid rgb(0, 0, 0); height: 24px;font-size:18px">
             得分
         </div>
         <div style="height: 30px; margin-right: 10px;"></div>
-    </div>
-    <div class="content-exam-title-text">
+        </div>
+        <div class="content-exam-title-text">
         <div style='font-weight: 700;font-size:18px'>
             ${obj[index].th}、${obj[index].title}（本大题共 ${obj[index].children.length} 小题，每小题 ${obj[index].fz} 分，共 ${obj[index].children.length * obj[index].fz} 分)
         </div>
-    </div>`
+        </div>`
       if (!obj[index].sm) {
         DThtml += `<div style='clear:both'></div>`
       }
@@ -456,7 +456,7 @@ export default {
       let tgHtml = ''
       let tgTXt = ''
       let arr = obj.children[i].xttg.split('>')
-      arr.splice(1, 0, `<span>${obj.children[i].th}.<span`)
+      arr.splice(1, 0, `<span>${obj.children[i].th}.</span`)
       tgHtml = arr.join('>')
       if (obj.children[i].stlx == "composition") {
         let arr1 = tgHtml.split('<')
@@ -466,13 +466,11 @@ export default {
       tgTXt = obj.children[i].th + '.' + obj.children[i].xtxq.tgTxt
       this.inputFn(tgHtml, tgTXt)
       if (obj.children[i].stlx == "composition" || obj.children[i].stlx == "answer" || obj.children[i].stlx == "shortAnswer" || obj.children[i].stlx == "discussion") {
-        let count = 0
-        this.inputLine(count, obj.children[i].xtxq.lineNumber)
+        this.inputLine(0, obj.children[i].xtxq.lineNumber)
       }
       if (obj.children[i].stlx == "judge") {
         let domArr = ["<span style='font-size:18px;margin:0 40px;display:inline-block'>A、正确</span><span style='font-size:18px;margin:0 40px;display:inline-block'>B、错误</span>"]
-        let count3 = 0
-        await this.inputXX(count3, domArr.length, domArr)
+        await this.inputXX(0, domArr.length, domArr)
       }
       if (obj.children[i].stlx == "single_select" || obj.children[i].stlx == "multi_select") {
         let XxArr = []
@@ -524,8 +522,14 @@ export default {
             xxDom = ''
           }
         }
-        let count2 = 0
-        await this.inputXX(count2, domArr.length, domArr)
+        await this.inputXX(0, domArr.length, domArr)
+      }
+      if (obj.children[i].stlx == "cloze_test") {
+        await this.inputWX(0, obj.children[i].xtxq.clozeList.length, obj.children[i].xtxq.clozeList)
+      }
+      if (obj.children[i].stlx == "English_reading") {
+        // console.log(obj.children[i])
+        await this.inputYYYD(0, obj.children[i].xtxq.yyyddaList.length, obj.children[i].xtxq.yyyddaList)
       }
       i++
       if (i < max) {
@@ -582,6 +586,152 @@ export default {
       i++
       if (i < max) {
         this.inputXX(i, max, obj)
+      }
+    },
+    async inputWX (count, max, obj) {
+      let i = count
+      let XxArr = []
+      for (let ii = 0; ii < obj[i].xxList.length; ii++) {
+        let creatDiv = document.createElement('span')
+        creatDiv.style.fontSize = '18px'
+        creatDiv.style.margin = '0 30px'
+        creatDiv.innerHTML = String.fromCharCode(ii + 65) + '、' + obj[i].xxList[ii]
+        this.$el.append(creatDiv);
+        let domWidth = creatDiv.offsetWidth + 80;//DOM的宽度
+        creatDiv.style.display = "none";
+        this.$el.removeChild(creatDiv)
+        XxArr.push(domWidth)
+      }
+      let switcher2 = false
+      let switcher1 = XxArr.some((item) => {
+        return item >= 550 / 4
+      })
+      if (switcher1) {
+        switcher2 = XxArr.some((item) => {
+          return item >= 550 / 2
+        })
+      }
+      let domArr = []
+      let xxDom = ''
+      if (!switcher1) {
+        //一行四个
+        for (let iii = 0; iii < obj[i].xxList.length; iii++) {
+          if (iii == 0) {
+            xxDom += "<span style='font-size:18px;margin-left:40px;display:inline-block;width:35px'>(" + (i + 1) + ")</span>"
+          }
+          if ((iii + 1) % 4 !== 0 && iii != 0) {
+            xxDom += "<span style='font-size:18px;margin:0 30px 0 105px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj[i].xxList[iii] + "</span>"
+          } else {
+            xxDom += "<span style='font-size:18px;margin:0 30px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj[i].xxList[iii] + "</span>"
+          }
+          if ((iii + 1) % 4 == 0) {
+            domArr.push(xxDom)
+            xxDom = ''
+          }
+        }
+      } else if (switcher1 && !switcher2) {
+        //一行两个
+        for (let iii = 0; iii < obj[i].xxList.length; iii++) {
+          if (iii == 0) {
+            xxDom += "<span style='font-size:18px;margin-left:40px;display:inline-block;width:35px'>(" + (i + 1) + ")</span>"
+          }
+          if ((iii + 1) % 2 !== 0 && iii != 0) {
+            xxDom += "<span style='font-size:18px;margin:0 30px 0 105px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj[i].xxList[iii] + "</span>"
+          } else {
+            xxDom += "<span style='font-size:18px;margin:0 30px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj[i].xxList[iii] + "</span>"
+          }
+          if ((iii + 1) % 2 == 0) {
+            domArr.push(xxDom)
+            xxDom = ''
+          }
+        }
+      } else {
+        //一行一个
+        for (let iii = 0; iii < obj[i].xxList.length; iii++) {
+          if (iii == 0) {
+            xxDom += "<span style='font-size:18px;margin-left:40px;display:inline-block;width:35px'>(" + (i + 1) + ")</span>"
+          }
+          if (iii != 0) {
+            xxDom += "<span style='font-size:18px;margin:0 30px 0 105px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj[i].xxList[iii] + "</span>"
+          } else {
+            xxDom += "<span style='font-size:18px;margin:0 30px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj[i].xxList[iii] + "</span>"
+          }
+          domArr.push(xxDom)
+          xxDom = ''
+        }
+      }
+      await this.inputXX(0, domArr.length, domArr)
+      i++
+      if (i < max) {
+        this.inputWX(i, max, obj)
+      }
+    },
+    async inputYYYD (count, max, obj) {
+      let i = count
+      let arr = obj[i].tg.split('>')
+      arr.splice(1, 0, `<span>(${count + 1})(${obj[i].tx})</span`)
+      let htmlTxt = arr.join('>')
+      let pureTxt = "(" + (count + 1) + ")(" + obj[i].tx + ")" + obj[i].tgTxt
+      await this.inputFn(htmlTxt, pureTxt)
+      if (obj[i].tx == "单选" || obj[i].tx == "多选") {
+        let XxArr = []
+        for (let ii = 0; ii < obj[i].xxList.length; ii++) {
+          let creatDiv = document.createElement('span')
+          creatDiv.style.fontSize = '18px'
+          creatDiv.style.margin = '0 40px'
+          creatDiv.innerHTML = String.fromCharCode(ii + 65) + '、' + obj[i].xxList[ii]
+          this.$el.append(creatDiv);
+          let domWidth = creatDiv.offsetWidth + 80;//DOM的宽度
+          creatDiv.style.display = "none";
+          this.$el.removeChild(creatDiv)
+          XxArr.push(domWidth)
+        }
+        let switcher2 = false
+        let switcher1 = XxArr.some((item) => {
+          return item >= 630 / 4
+        })
+        if (switcher1) {
+          switcher2 = XxArr.some((item) => {
+            return item >= 630 / 2
+          })
+        }
+        let domArr = []
+        let xxDom = ''
+        if (!switcher1) {
+          //一行四个
+          for (let iii = 0; iii < obj[i].xxList.length; iii++) {
+            xxDom += "<span style='font-size:18px;margin:0 40px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj[i].xxList[iii] + "</span>"
+            if ((iii + 1) % 4 == 0) {
+              domArr.push(xxDom)
+              xxDom = ''
+            }
+          }
+        } else if (switcher1 && !switcher2) {
+          //一行两个
+          for (let iii = 0; iii < obj[i].xxList.length; iii++) {
+            xxDom += "<span style='font-size:18px;margin:0 40px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj[i].xxList[iii] + "</span>"
+            if ((iii + 1) % 2 == 0) {
+              domArr.push(xxDom)
+              xxDom = ''
+            }
+          }
+        } else {
+          //一行一个
+          for (let iii = 0; iii < obj[i].xxList.length; iii++) {
+            xxDom += "<span style='font-size:18px;margin:0 40px;display:inline-block'>" + String.fromCharCode(iii + 65) + "、" + obj[i].xxList[iii] + "</span>"
+            domArr.push(xxDom)
+            xxDom = ''
+          }
+        }
+        await this.inputXX(0, domArr.length, domArr)
+      }
+      if (obj[i].tx == "问答") {
+        // console.log(2)
+        await this.inputLine(0, 5)
+      }
+      i++
+      if (i < max) {
+        this.inputYYYD(i, max, obj)
       }
     },
     // -----------------------utils-------------------------------------

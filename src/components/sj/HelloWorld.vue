@@ -39,21 +39,24 @@
         </div>
         <div class="cutOff"></div>
         <div class="settingItem">
-          <div class="btns">
+          <div class="btns"
+               @click="showPreview(1)">
             <img src="../../assets/ylsj.png"
                  alt=""
                  class="btnIcon"
                  style="width:16px;height:16px">
             试&nbsp;&nbsp;&nbsp;&nbsp;卷
           </div>
-          <div class="btns">
+          <div class="btns"
+               @click="showPreview(2)">
             <img src="../../assets/ylsj.png"
                  alt=""
                  class="btnIcon"
                  style="width:16px;height:16px">
             答&nbsp;&nbsp;&nbsp;&nbsp;案
           </div>
-          <div class="btns">
+          <div class="btns"
+               @click="showPreview(3)">
             <img src="../../assets/ylsj.png"
                  alt=""
                  class="btnIcon"
@@ -77,7 +80,8 @@
         </div>
       </div>
       <!-- 中间预览视图 -->
-      <div class="mainPreview">
+      <div class="mainPreview"
+           ref="mainBox">
         <div v-if="showPage">
           <A4Single :titleInfo='titleInfo'
                     :treeData='treeData'></A4Single>
@@ -242,6 +246,19 @@
         </div>
       </div>
     </transition>
+    <!-- 预览弹窗 -->
+    <transition name="fade">
+      <div v-if="showPreviewPage"
+           style="width:100vw;height:100vh;position:fixed;background:rgba(0,0,0,0.5);z-index:9999;top:0;left:0">
+        <div style="width:100vw;height:100vh;background:rgba(255,255,255,0.5);box-shadow:0px 4px 12px 0px rgba(0,0,0,0.2);border-radius:4px;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);overflow:auto">
+          <Icon type="md-close"
+                style="position:absolute;top:10px;right:10px;font-size:40px;cursor:pointer"
+                @click="showPreviewPage=false" />
+          <div style="margin:0 auto;margin-top:60px"
+               v-html="previewHTML"></div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -360,6 +377,8 @@ export default {
       childIndex: '',//编辑小题时小题的index
       xtth: '',//编辑小题时保存的小题题号
       showPage: true,//显示中间试卷主页面开关
+      showPreviewPage: false,//预览弹窗
+      previewHTML: ''//预览html
     }
   },
   components: {
@@ -646,6 +665,16 @@ export default {
       this.$set(data, "expand", true);
       this.treeData[this.parentIndex].children.splice(this.childIndex, 1, data);
       this.showAddXT = false;
+    },
+    showPreview (val) {
+      // 点击显示预览方法
+      // 1--试卷,
+      // 2--答案,
+      // 3--答题卡
+      this.showPreviewPage = true
+      if (val == 1) {
+        this.previewHTML = this.$refs.mainBox.innerHTML
+      }
     },
     // -----------------------utils-------------------------------------
     toChinesNum (num) {
