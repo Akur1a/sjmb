@@ -140,10 +140,23 @@
         </div>
       </div>
       <!-- 试题 -->
-      <div style="width:630px;margin-left:125px;margin-top:5px"
+      <div style="width:630px;margin-left:125px;margin-top:5px;"
            :style="{height:index==0?'617px':'958px'}"
            ref="page"
            class="STArea"></div>
+      <!-- 卷尾 -->
+      <div style="font-size:16px">
+        <div class="signArea"
+             style="display:flex;justify-content:space-around"
+             v-if="QZRData.length>0">
+          <span v-for="(item,index) in QZRData"
+                :key="index">{{item.value}}(签字):</span>
+        </div>
+        <div style="text-align:center"
+             v-if="showPageInfo">
+          第 {{ index+1 }} 页 共 {{ pageList.length }} 页
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -166,8 +179,11 @@ export default {
     }
   },
   props: {
-    titleInfo: Object,
-    treeData: Array,
+    titleInfo: Object,//试卷头信息
+    treeData: Array,//题目信息
+    QZRData: Array,//签字人信息
+    showPageInfo: Boolean,//是否显示分页
+    showTH: Boolean,//是否显示题号
   },
   mounted () {
     this.setCSS()
@@ -185,8 +201,8 @@ export default {
     putDTSM (val, count, nextTxt) {
       // 切分放置大题说明
       let pureTxt = val
-      let txt = `<p style="width:630px;margin-top: 6px;font-weight: 300;text-indent: 110px;font-size:18px">${val}</p>`
-      let txt2 = `<p style="width:630px;margin-top: 6px;font-weight: 300;text-indent:30px;font-size:18px">${val}</p>`
+      let txt = `<p style="width:630px;margin-top: 6px;font-weight: 700;text-indent: 110px;font-size:18px">${val}</p>`
+      let txt2 = `<p style="width:630px;margin-top: 6px;font-weight: 700;text-indent:30px;font-size:18px">${val}</p>`
       let num = count
       let creatDiv = document.createElement("div");
       creatDiv.innerHTML = txt;
@@ -438,14 +454,16 @@ export default {
         // 切分放置大题说明
         this.QTBackup = {
           pureTxt: obj[index].sm,
-          txt: `<p style="width:630px;font-weight: 300;font-size:18px">${obj[index].sm}</p>`
+          txt: `<p style="width:630px;font-weight: 300;font-size:18px;font-weight:700">${obj[index].sm}</p>`
         }
         this.putDTSM(obj[index].sm, obj[index].sm.length - 1)
       }
 
       // 处理小题
       let counts = 0
-      await this.inputXT(counts, obj[index].children.length, obj[index])
+      if (obj[index].children.length) {
+        await this.inputXT(counts, obj[index].children.length, obj[index])
+      }
       index++
       if (index < max) {
         this.inputDT(index, max, obj)
@@ -455,9 +473,13 @@ export default {
       let i = count
       let tgHtml = ''
       let tgTXt = ''
-      let arr = obj.children[i].xttg.split('>')
-      arr.splice(1, 0, `<span>${obj.children[i].th}.</span`)
-      tgHtml = arr.join('>')
+      if (this.showTH) {
+        let arr = obj.children[i].xttg.split('>')
+        arr.splice(1, 0, `<span>${obj.children[i].th}.</span`)
+        tgHtml = arr.join('>')
+      } else {
+        tgHtml = obj.children[i].xttg
+      }
       if (obj.children[i].stlx == "composition") {
         let arr1 = tgHtml.split('<')
         arr1.splice(arr1.length - 1, 0, `span style='font-size:16px'>(${obj.children[i].xtxq.zwNumber}字)<span>`)
@@ -530,6 +552,10 @@ export default {
       if (obj.children[i].stlx == "English_reading") {
         // console.log(obj.children[i])
         await this.inputYYYD(0, obj.children[i].xtxq.yyyddaList.length, obj.children[i].xtxq.yyyddaList)
+      }
+      if (this.pageList[this.pageNo].height > 10) {
+        this.$refs.page[this.pageNo].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:10px'></div>`
+        this.pageList[this.pageNo].height -= 10
       }
       i++
       if (i < max) {
@@ -894,12 +920,19 @@ export default {
           this.$refs.page[this.pageNo].innerHTML = ''
           // 循环treeData 渲染页面
           let counts = 0
-          this.inputDT(counts, newValue.length, newValue)
-          // console.log(1)
-          // for (let index = 0; index < newValue.length; index++) {
-
-          // }
+          if (newValue.length) {
+            this.inputDT(counts, newValue.length, newValue)
+          }
         })
+      },
+      deep: true,
+      immediate: true
+    },
+    titleInfo: {
+      handler (newValue, oldValue) {
+        setTimeout(() => {
+          this.setCSS()
+        }, 100);
       },
       deep: true,
       immediate: true

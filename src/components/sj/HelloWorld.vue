@@ -37,6 +37,28 @@
           <div class="editBtn"
                @click="editKSXX">点击修改</div>
         </div>
+        <div class="settingItem">
+          <p class="settingTitle">编辑签字栏</p>
+          <div class="editBtn"
+               @click="showQZL=true">点击修改</div>
+        </div>
+        <div class="settingItem">
+          <p class="settingTitle">是否显示分页</p>
+          <i-switch v-model="showPageInfo"
+                    style="margin-top:10px">
+            <span slot="open">是</span>
+            <span slot="close">否</span>
+          </i-switch>
+        </div>
+        <div class="settingItem">
+          <p class="settingTitle">是否显示题号</p>
+          <i-switch v-model="showTH"
+                    @on-change='changeTHStatus'
+                    style="margin-top:10px">
+            <span slot="open">是</span>
+            <span slot="close">否</span>
+          </i-switch>
+        </div>
         <div class="cutOff"></div>
         <div class="settingItem">
           <div class="btns"
@@ -84,6 +106,9 @@
            ref="mainBox">
         <div v-if="showPage">
           <A4Single :titleInfo='titleInfo'
+                    :QZRData='QZRData'
+                    :showTH='showTH'
+                    :showPageInfo='showPageInfo'
                     :treeData='treeData'></A4Single>
         </div>
       </div>
@@ -222,6 +247,51 @@
         </div>
       </div>
     </transition>
+    <!-- 修改签字栏弹窗-->
+    <transition name="fade">
+      <div v-if="showQZL"
+           style="width:100vw;height:100vh;position:fixed;background:rgba(0,0,0,0.5);z-index:1000;top:0;left:0">
+        <div style="width:500px;background:rgba(255,255,255,1);box-shadow:0px 4px 12px 0px rgba(0,0,0,0.2);border-radius:4px;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);">
+          <p style="font-size:18px;margin:20px 0 0 30px">编辑签字栏</p>
+          <p style="font-size:14px;margin:25px 40px">
+            <span style="width:120px;text-align:right;display:inline-block;margin-right:10px;">是否启用签字栏:</span>
+            <RadioGroup v-model="enableQZL">
+              <Radio label="1"
+                     style="margin-right:15px">&nbsp;是</Radio>
+              <Radio label="0"
+                     style="margin-right:15px">&nbsp;否</Radio>
+            </RadioGroup>
+          </p>
+          <div style="font-size:14px;margin:25px 40px"
+               v-if="enableQZL==1">
+            <span style="width:120px;text-align:right;display:inline-block;margin-right:10px;">添加签字人:</span>
+            <div style="display:inline-block;width:250px;vertical-align: top;">
+              <p style="display:inline-block;width:300px;margin-bottom:10px;"
+                 v-for="(item,index) in QZRList"
+                 :key="index">
+                <Input v-model="item.value"
+                       placeholder="请输入签字人"
+                       style="width: 200px" />
+                <Icon type="md-trash"
+                      v-if="index>0"
+                      @click="delQZR(index)"
+                      style="font-size:18px;color:red;cursor:pointer;margin-left:5px" />
+              </p>
+              <p style="display:inline-block;padding:2px 5px;border:1px solid black;border-radius:4px;cursor:pointer"
+                 @click="QZRList.push({value:''})">
+                添加签字人
+              </p>
+            </div>
+          </div>
+          <div style="width:280px;height:36px;margin:0 auto;margin-bottom:30px;">
+            <div style="width:120px;height:36px;font-size:16px;line-height:36px;text-align:center;cursor:pointer;float:left;margin:0 10px;border-radius:4px;background:#007ae1;color:white"
+                 @click=subQZL>确定</div>
+            <div style="width:120px;height:36px;font-size:16px;line-height:36px;text-align:center;cursor:pointer;float:left;margin:0 10px;border-radius:4px;border:1px solid #ccc;color:#bbb"
+                 @click="showQZL=false">取消</div>
+          </div>
+        </div>
+      </div>
+    </transition>
     <!-- 添加小题弹窗 -->
     <transition name="fade">
       <div class="new-upload-dialog"
@@ -274,12 +344,16 @@ export default {
       printingMode: '1',//打印方式
       typeList: [
         {
-          label: "填空",
-          value: "gap_filling"
+          label: "单项选择题",
+          value: "single_select"
         },
         {
-          label: "作文",
-          value: "composition"
+          label: "多项选择题",
+          value: "multi_select"
+        },
+        {
+          label: "填空",
+          value: "gap_filling"
         },
         {
           label: "判断",
@@ -298,20 +372,16 @@ export default {
           value: "discussion"
         },
         {
-          label: "单项选择题",
-          value: "single_select"
-        },
-        {
-          label: "多项选择题",
-          value: "multi_select"
-        },
-        {
           label: "完形填空",
           value: "cloze_test"
         },
         {
           label: "英语阅读",
           value: "English_reading"
+        },
+        {
+          label: "作文",
+          value: "composition"
         }
       ],//题型数组
       treeData: [],//题目list
@@ -378,7 +448,13 @@ export default {
       xtth: '',//编辑小题时保存的小题题号
       showPage: true,//显示中间试卷主页面开关
       showPreviewPage: false,//预览弹窗
-      previewHTML: ''//预览html
+      previewHTML: '',//预览html
+      showQZL: false,//编辑签字栏弹窗
+      enableQZL: '0',//是否启用签字栏
+      QZRList: [{ value: '' }],//签字人list
+      QZRData: [],//签字人数据
+      showPageInfo: true,//是否显示分页信息
+      showTH: true,//是否显示题号
     }
   },
   components: {
@@ -542,7 +618,7 @@ export default {
           }
         }, [
             h('span', [
-              h('span', data.th + '.' + data.title)
+              h('span', data.title)
             ]),
             h('span', {
               style: {
@@ -676,6 +752,23 @@ export default {
         this.previewHTML = this.$refs.mainBox.innerHTML
       }
     },
+    subQZL () {
+      if (this.enableQZL == '1') {
+        this.QZRData = this.QZRList
+      } else {
+        this.QZRData = []
+      }
+      this.showQZL = false
+    },
+    delQZR (index) {
+      this.QZRList.splice(index, 1)
+    },
+    changeTHStatus () {
+      this.showPage = false
+      setInterval(() => {
+        this.showPage = true
+      }, 0);
+    },
     // -----------------------utils-------------------------------------
     toChinesNum (num) {
       //阿拉伯数字转中文数字
@@ -738,6 +831,13 @@ export default {
         this.parentIndex = ''
         this.childIndex = ''
         this.xtth = ''
+      }
+    },
+    showQZL () {
+      // watch编辑签字栏弹窗 关闭后清空相关数据
+      if (!this.showQZL && this.QZRData.length == 0) {
+        this.enableQZL = '0'
+        this.QZRList = [{ value: '' }]
       }
     }
   }
@@ -874,6 +974,7 @@ export default {
 }
 .treeBox {
   width: 100%;
+  margin-bottom: 20px;
 }
 .treeBox >>> .demo-tree-render .ivu-tree-title {
   width: 100%;
