@@ -21,6 +21,7 @@
       </div>
       <!--卷头-->
       <div id="new-upload-header"
+           ref="pageHead"
            style="margin-left: 125px"
            v-if="index==0">
         <div id="header-title"
@@ -147,7 +148,7 @@
       <!-- 卷尾 -->
       <div style="font-size:16px">
         <div class="signArea"
-             style="display:flex;justify-content:space-around"
+             style="width:630px;margin-left: 125px;display:flex;justify-content:space-around"
              v-if="QZRData.length>0">
           <span v-for="(item,index) in QZRData"
                 :key="index">{{item.value}}(签字):</span>
@@ -265,7 +266,6 @@ export default {
       let domHeight = creatDiv.clientHeight;//DOM的高度
       creatDiv.style.display = "none";
       this.$el.removeChild(creatDiv)
-      // console.log(domHeight, this.pageList[this.pageNo].height)
       // 比较高度和剩余高度
       if (domHeight < this.pageList[this.pageNo].height) {
         // 放得开
@@ -279,8 +279,6 @@ export default {
             this.pageList[this.pageNo].height -= domHeight
           })
         }
-        // this.$refs.page[this.pageNo].innerHTML += domTxt
-        // this.pageList[this.pageNo].height -= domHeight
       } else {
         // 放不开
         // 拆分虚拟dom
@@ -908,22 +906,25 @@ export default {
     treeData: {
       //监听treeData传参 数据改变后重新渲染页面
       handler (newValue, oldValue) {
-        // 清空pageList
-        this.pageList = [{
-          width: 630,
-          height: 617,
-          showDashedLine: true,
-        }]
-        this.pageNo = 0
-        this.$nextTick(() => {
-          // 清空试题区域
-          this.$refs.page[this.pageNo].innerHTML = ''
-          // 循环treeData 渲染页面
-          let counts = 0
-          if (newValue.length) {
-            this.inputDT(counts, newValue.length, newValue)
-          }
-        })
+        setTimeout(() => {
+          // console.log(this.$refs.pageHead[0].clientHeight)
+          // 清空pageList
+          this.pageList = [{
+            width: 630,
+            height: 958 - this.$refs.pageHead[0].clientHeight,
+            showDashedLine: true,
+          }]
+          this.pageNo = 0
+          this.$nextTick(() => {
+            // 清空试题区域
+            this.$refs.page[this.pageNo].innerHTML = ''
+            // 循环treeData 渲染页面
+            let counts = 0
+            if (newValue.length) {
+              this.inputDT(counts, newValue.length, newValue)
+            }
+          })
+        }, 100);
       },
       deep: true,
       immediate: true

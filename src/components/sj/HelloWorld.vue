@@ -278,7 +278,8 @@
                       style="font-size:18px;color:red;cursor:pointer;margin-left:5px" />
               </p>
               <p style="display:inline-block;padding:2px 5px;border:1px solid black;border-radius:4px;cursor:pointer"
-                 @click="QZRList.push({value:''})">
+                 @click="QZRList.push({value:''})"
+                 v-if="QZRList.length<3">
                 添加签字人
               </p>
             </div>
@@ -839,6 +840,16 @@ export default {
         this.enableQZL = '0'
         this.QZRList = [{ value: '' }]
       }
+    },
+    titleInfo: {
+      handler (newValue, oldValue) {
+        this.showPage = false
+        setInterval(() => {
+          this.showPage = true
+        }, 0);
+      },
+      deep: true,
+      immediate: true
     }
   }
 }
