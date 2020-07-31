@@ -870,7 +870,7 @@ export default {
   background: white;
 }
 .leftSetting {
-  width: 150px;
+  width: 160px;
   height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
@@ -975,7 +975,7 @@ export default {
   background: #999;
 }
 .questionTree {
-  width: 400px;
+  width: 390px;
   height: 100vh;
   float: left;
   overflow-x: hidden;
