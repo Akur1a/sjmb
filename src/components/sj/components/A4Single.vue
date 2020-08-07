@@ -464,7 +464,9 @@ export default {
       }
       index++
       if (index < max) {
-        this.inputDT(index, max, obj)
+        setTimeout(() => {
+          this.inputDT(index, max, obj)
+        }, 0);
       }
     },
     async inputXT (count, max, obj) {
@@ -486,7 +488,7 @@ export default {
       tgTXt = obj.children[i].th + '.' + obj.children[i].xtxq.tgTxt
       this.inputFn(tgHtml, tgTXt)
       if (obj.children[i].stlx == "composition" || obj.children[i].stlx == "answer" || obj.children[i].stlx == "shortAnswer" || obj.children[i].stlx == "discussion") {
-        this.inputLine(0, obj.children[i].xtxq.lineNumber)
+        this.inputLine(0, obj.children[i].xtxq.lineNumber, i)
       }
       if (obj.children[i].stlx == "judge") {
         let domArr = ["<span style='font-size:18px;margin:0 40px;display:inline-block'>A、正确</span><span style='font-size:18px;margin:0 40px;display:inline-block'>B、错误</span>"]
@@ -552,15 +554,23 @@ export default {
         await this.inputYYYD(0, obj.children[i].xtxq.yyyddaList.length, obj.children[i].xtxq.yyyddaList)
       }
       if (this.pageList[this.pageNo].height > 10) {
-        this.$refs.page[this.pageNo].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:10px'></div>`
+        if (this.$refs.page[this.pageNo]) {
+          this.$refs.page[this.pageNo].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:10px'></div>`
+        } else {
+          this.$nextTick(() => {
+            this.$refs.page[this.pageNo].innerHTML += `<div style='width:630px;margin:0 auto;font-size:18px;height:10px'></div>`
+          })
+        }
         this.pageList[this.pageNo].height -= 10
       }
       i++
       if (i < max) {
-        this.inputXT(i, max, obj)
+        setTimeout(() => {
+          this.inputXT(i, max, obj)
+        }, 0);
       }
     },
-    async inputLine (count, max) {
+    async inputLine (count, max, val) {
       if (this.pageList[this.pageNo].height < 27) {
         this.pageList.push({
           width: 630,
@@ -609,7 +619,9 @@ export default {
       }
       i++
       if (i < max) {
-        this.inputXX(i, max, obj)
+        setTimeout(() => {
+          this.inputXX(i, max, obj)
+        }, 0);
       }
     },
     async inputWX (count, max, obj) {
@@ -687,7 +699,9 @@ export default {
       await this.inputXX(0, domArr.length, domArr)
       i++
       if (i < max) {
-        this.inputWX(i, max, obj)
+        setTimeout(() => {
+          this.inputWX(i, max, obj)
+        }, 0);
       }
     },
     async inputYYYD (count, max, obj) {
@@ -750,12 +764,13 @@ export default {
         await this.inputXX(0, domArr.length, domArr)
       }
       if (obj[i].tx == "问答") {
-        // console.log(2)
         await this.inputLine(0, 5)
       }
       i++
       if (i < max) {
-        this.inputYYYD(i, max, obj)
+        setTimeout(() => {
+          this.inputYYYD(i, max, obj)
+        }, 0);
       }
     },
     // -----------------------utils-------------------------------------
