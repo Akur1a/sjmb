@@ -25,6 +25,7 @@
         <div class="settingItem">
           <p class="settingTitle">选择打印方式</p>
           <RadioGroup v-model="printingMode"
+                      @on-change="changeSinDou"
                       class="printingModeRadio">
             <Radio label="1"
                    style="margin:5px 0">&nbsp;单面打印</Radio>
@@ -104,12 +105,38 @@
       <!-- 中间预览视图 -->
       <div class="mainPreview"
            ref="mainBox">
-        <div v-if="showPage">
+        <!--A4单面-->
+        <!--要删的→-->{{showPage}}  {{paperSize}}  {{printingMode}}
+        <div v-if="showPage && paperSize=='A4' && printingMode=='1'" >
           <A4Single :titleInfo='titleInfo'
                     :QZRData='QZRData'
                     :showTH='showTH'
                     :showPageInfo='showPageInfo'
                     :treeData='treeData'></A4Single>
+        </div>
+        <!--A4双面-->
+        <div v-if="showPage && paperSize=='A4' && printingMode=='2'" >
+          <A4Double :titleInfo='titleInfo'
+                    :QZRData='QZRData'
+                    :showTH='showTH'
+                    :showPageInfo='showPageInfo'
+                    :treeData='treeData'></A4Double>
+        </div>
+        <!--A3单面-->
+        <div v-if="showPage && paperSize=='A3' && printingMode=='1'" >
+          <A3Single :titleInfo='titleInfo'
+                    :QZRData='QZRData'
+                    :showTH='showTH'
+                    :showPageInfo='showPageInfo'
+                    :treeData='treeData'></A3Single>
+        </div>
+        <!--A3双面-->
+        <div v-if="showPage && paperSize=='A3' && printingMode=='2'" >
+          <A3Double :titleInfo='titleInfo'
+                    :QZRData='QZRData'
+                    :showTH='showTH'
+                    :showPageInfo='showPageInfo'
+                    :treeData='treeData'></A3Double>
         </div>
       </div>
       <!-- 右侧添加试题部分 -->
@@ -337,6 +364,9 @@
 import addNew from "./addNew";
 import bus from "../../common/reLoadBus";
 import A4Single from './components/A4Single'
+import A4Double from "./components/A4Double";
+import A3Single  from "./components/A3Single";
+import A3Double from "./components/A3Double";
 
 export default {
   data () {
@@ -433,7 +463,7 @@ export default {
             value: '8'
           }
         ],
-        grade: '2020级养猪与种地',
+        grade: '2020级养猪与种地哈哈哈哈红红火火恍恍惚惚',
         ksfs: '1',
         mtjs: '养猪大户王铁牛',
         kssc: 120,
@@ -459,7 +489,7 @@ export default {
     }
   },
   components: {
-    addNew, A4Single
+    addNew, A4Single,A4Double,A3Single,A3Double
   },
   mounted () {
   },
@@ -468,6 +498,10 @@ export default {
       if (this.addDTInfo.fz) {
         this.addDTInfo.fz = this.addDTInfo.fz.toFixed(1) * 1
       }
+    },
+    changeSinDou(){
+      //切换单双页
+      console.log(this.printingMode);
     },
     changePaperSize (val) {
       // 切换打印尺寸
@@ -973,6 +1007,7 @@ export default {
   overflow-x: hidden;
   overflow-y: auto;
   background: #999;
+  padding-left: 3px;
 }
 .questionTree {
   width: 390px;

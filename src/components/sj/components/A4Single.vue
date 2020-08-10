@@ -142,7 +142,7 @@
       </div>
       <!-- 试题 -->
       <div style="width:630px;margin-left:125px;margin-top:5px;"
-           :style="{height:index==0?'617px':'958px'}"
+           :style="{height:index==0?'593px':'958px'}"
            ref="page"
            class="STArea"></div>
       <!-- 卷尾 -->
@@ -170,7 +170,7 @@ export default {
       pageList: [
         {
           width: 630,
-          height: 617,
+          height: 593,
           showDashedLine: true,
         }
       ],//试卷list
@@ -254,7 +254,7 @@ export default {
     },
     inputFn (htmlTxt, pureTxt) {
       // htmlTxt 富文本
-      //  pureTxt 纯文本 
+      //  pureTxt 纯文本
 
       //生成虚拟dom,获取富文本高度
       let creatDiv = document.createElement("div");
@@ -320,7 +320,7 @@ export default {
               }
             }
             if (switcher || domArr[index].tagName == 'TABLE') {
-              // 放入表格或图片       
+              // 放入表格或图片
               // 追加页面
               this.showPage = false
               this.pageList.push({
@@ -608,20 +608,31 @@ export default {
         })
         this.pageNo++
       }
+
+      let creatDiv = document.createElement('div')
+      creatDiv.style.fontSize = '18px'
+      creatDiv.style.fontSize = '630px'
+      creatDiv.innerHTML = "<div style='width:630px;margin:0 auto;font-size:18px'>" + obj[count] + '</div>'
+      this.$el.append(creatDiv);
+      let domWidth = creatDiv.offsetHeight;//DOM的宽度
+      creatDiv.style.display = "none";
+      this.$el.removeChild(creatDiv)
+
       if (this.$refs.page[this.pageNo]) {
         this.$refs.page[this.pageNo].innerHTML += "<div style='width:630px;margin:0 auto;font-size:18px'>" + obj[count] + '</div>'
-        this.pageList[this.pageNo].height -= 27
+        this.pageList[this.pageNo].height -= domWidth
       } else {
         this.$nextTick(() => {
           this.$refs.page[this.pageNo].innerHTML += "<div style='width:630px;margin:0 auto;font-size:18px'>" + obj[count] + '</div>'
-          this.pageList[this.pageNo].height -= 27
+          this.pageList[this.pageNo].height -= domWidth
         })
       }
       i++
       if (i < max) {
-        setTimeout(() => {
-          this.inputXX(i, max, obj)
-        }, 0);
+        this.inputXX(i, max, obj)
+        // setTimeout(() => {
+        //   this.inputXX(i, max, obj)
+        // }, 0);
       }
     },
     async inputWX (count, max, obj) {
